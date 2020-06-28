@@ -38,7 +38,7 @@
     "uuid-apikey": "^1.4.6"
   },
   "devDependencies": {
-    "geesome-wallet-client": "git+ssh://git@github.com/galtproject/geesome-wallet-client.git#f4c4841",
+    "geesome-wallet-client": "git+ssh://git@github.com/galtproject/geesome-wallet-client.git#87cd093",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
     "@types/node": "^13.1.6",

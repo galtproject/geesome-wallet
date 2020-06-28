@@ -21,21 +21,14 @@ describe("databaseValues", function () {
             let database = await require('../database/sql')(databaseConfig);
             const appService: IGAppService = await require('../services/appService/v1')(database, null);
 
-            const derivationPath = `m/44'/60'/0'/0/`;
+            const cryptoMetadata = lib.getDefaultCryptoMetadata();
+            const { derivationPath } = cryptoMetadata;
 
             const seed = lib.generateMnemonic();
             const ethereumWallet = lib.getKeypairByMnemonic(seed, 0, derivationPath);
 
             const email = 'my@email.com';
             const password = 'my-password-123';
-
-            const cryptoMetadata = {
-                derivationPath,
-                iterations: 100000,
-                kdf: 'sha512',
-                cryptoCounter: 5,
-                version: 1
-            };
 
             const passwordDerivedKey = lib.getPasswordDerivedKey(password, email, cryptoMetadata.iterations, cryptoMetadata.kdf);
 
