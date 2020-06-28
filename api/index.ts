@@ -16,7 +16,6 @@ const service = require('restana')({
 const bodyParser = require('body-parser');
 
 module.exports = (appService: IGAppService, port) => {
-    require('./showEndpointsTable');
     service.use(bodyParser.json());
 
     function setHeaders(res) {
