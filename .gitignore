@@ -1,0 +1,9 @@
+node_modules
+.idea
+coverage
+.nyc_output
+data
+public
+data.zip
+.DS_Store
+data.sqlite3
