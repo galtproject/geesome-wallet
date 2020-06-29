@@ -86,7 +86,6 @@ class SqlDatabase implements IGDatabase {
                 walletData[field] = walletData[field].toLowerCase();
             }
         });
-        console.log('updateWallet', walletData);
         return this.models.Wallet.update(walletData, { where: { id: walletData.id } });
     }
 }
