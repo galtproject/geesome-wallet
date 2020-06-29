@@ -8,9 +8,11 @@
  */
 
 import {IGDatabase} from "../../../database/interface";
+const ethereumAuthorization = require('../../authorization/ethereum');
 
 // const utils = require('../../../utils');
 const _ = require('lodash');
+const pIteration = require('p-iteration');
 //
 // const axios = require("axios");
 // const uuidv4 = require('uuid/v4');
@@ -21,10 +23,10 @@ const _ = require('lodash');
 // const bip39 = require('bip39');
 
 module.exports = async (database, sentry) => {
-    return new DCityAppService(database, sentry);
+    return new IGAppService(database, sentry);
 };
 
-class DCityAppService {
+class IGAppService {
     database: IGDatabase;
     sentry: any;
 
@@ -51,20 +53,37 @@ class DCityAppService {
         return this.database.getWalletByEmailAndPasswordHash(email, passwordHash);
     }
 
-    async updateWallet(email, passwordHash, walletData) {
-        const wallet = await this.getWalletByEmailAndPasswordHash(email, passwordHash);
+    async getWalletByPrimaryAddress(primaryAddress) {
+        return this.database.getWalletByPrimaryAddress(primaryAddress);
+    }
+
+    async updateWallet(primaryAddress, signature, walletData, expiredOn) {
+        const messageParams = [
+            { type: 'string', name: 'action', value: 'updateWallet'},
+            { type: 'string', name: 'walletData', value: JSON.stringify(walletData)},
+            { type: 'string', name: 'expiredOn', value: expiredOn.toString()}
+        ];
+        const isValid = ethereumAuthorization.isSignatureValid(primaryAddress, signature, messageParams);
+        if (!isValid) {
+            throw new Error("not_valid");
+        }
+
+        const wallet = await this.getWalletByPrimaryAddress(primaryAddress);
         if(!wallet) {
             throw new Error("not_found");
         }
-        if(walletData.email && walletData.email != wallet.email) {
-            const walletByNewEmail = await this.database.getWalletByEmail(walletData.email);
-            if(!walletByNewEmail) {
-                throw new Error("email_busy");
+
+        await pIteration.forEach(['email', 'phone', 'primaryAddress', 'username'], async (field) => {
+            if(walletData[field] && walletData[field].toLowerCase() != (wallet[field] || '').toLowerCase()) {
+                if(await this.database.getWalletByField(field, walletData[field].toLowerCase())) {
+                    throw new Error(field + "_busy");
+                }
             }
-        }
+        });
+
         await this.database.updateWallet({
-            id: walletData.id,
-            ..._.pick(walletData, ['cryptoMetadataJson', 'settingsJson', 'email', 'passwordHash', 'encryptedSeed'])
+            id: wallet.id,
+            ..._.pick(walletData, ['cryptoMetadataJson', 'settingsJson', 'email', 'phone', 'primaryAddress', 'username', 'passwordHash', 'encryptedSeed'])
         });
 
         return this.database.getWallet(walletData.id)

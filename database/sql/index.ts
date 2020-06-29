@@ -28,10 +28,12 @@ module.exports = async function(extendConfig?: any) {
         return console.error('Error', e);
     }
     
-    return new MysqlDCityDatabase(sequelize, models, extendedConfig);
+    return new SqlDatabase(sequelize, models, extendedConfig);
 };
 
-class MysqlDCityDatabase implements IGDatabase {
+const lowerCaseFields = ['email', 'username', 'primaryAddress'];
+
+class SqlDatabase implements IGDatabase {
     sequelize: any;
     models: any;
     config: any;
@@ -47,11 +49,21 @@ class MysqlDCityDatabase implements IGDatabase {
     }
 
     async addWallet(wallet) {
+        lowerCaseFields.forEach(field => {
+            if(wallet[field]) {
+                wallet[field] = wallet[field].toLowerCase();
+            }
+        });
         return this.models.Wallet.create(wallet);
     }
 
     async getWalletByEmail(email) {
+        email = email.toLowerCase();
         return this.models.Wallet.findOne({ where: { email }});
+    }
+
+    async getWalletByField(fieldName, fieldValue) {
+        return this.models.Wallet.findOne({ where: { [fieldName]: fieldValue }});
     }
 
     async getWallet(id) {
@@ -59,10 +71,22 @@ class MysqlDCityDatabase implements IGDatabase {
     }
 
     async getWalletByEmailAndPasswordHash(email, passwordHash) {
+        email = email.toLowerCase();
         return this.models.Wallet.findOne({ where: { email, passwordHash }});
     }
 
+    async getWalletByPrimaryAddress(primaryAddress) {
+        primaryAddress = primaryAddress.toLowerCase();
+        return this.models.Wallet.findOne({ where: { primaryAddress }});
+    }
+
     async updateWallet(walletData) {
-        return this.models.Wallet.update({ where: { id: walletData.id } }, walletData);
+        lowerCaseFields.forEach(field => {
+            if(walletData[field]) {
+                walletData[field] = walletData[field].toLowerCase();
+            }
+        });
+        console.log('updateWallet', walletData);
+        return this.models.Wallet.update(walletData, { where: { id: walletData.id } });
     }
 }

@@ -40,7 +40,7 @@ module.exports = (appService: IGAppService, port) => {
 
     service.post('/v1/update-wallet', async (req, res) => {
         setHeaders(res);
-        res.send(await appService.updateWallet(req.body.email, req.body.passwordHash, req.body.updateData));
+        res.send(await appService.updateWallet(req.body.primaryAddress, req.body.signature, req.body.walletData, req.body.expiredOn));
     });
 
     service.options("/*", function (req, res, next) {

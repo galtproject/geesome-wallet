@@ -18,7 +18,7 @@ export interface IGAppService {
 
     getWalletByEmailAndPasswordHash(email, passwordHash): Promise<IGWallet>;
 
-    updateWallet(email, passwordHash, walletData): Promise<IGWallet>;
+    updateWallet(primaryAddress, signature, walletData, expiredOn): Promise<IGWallet>;
 }
 
 export interface TokenBalanceResponse {

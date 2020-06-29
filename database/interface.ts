@@ -13,13 +13,19 @@ export interface IGDatabase {
     addWallet(wallet): Promise<IGWallet>;
     getWallet(id): Promise<IGWallet>;
     getWalletByEmail(email): Promise<IGWallet>;
+    getWalletByField(fieldName, fieldValue): Promise<IGWallet>;
     getWalletByEmailAndPasswordHash(email, passwordHash): Promise<IGWallet>;
+    getWalletByPrimaryAddress(primaryAddress): Promise<IGWallet>;
 
     updateWallet(walletData): Promise<any>;
 }
 
 export interface IGWallet {
+    id;
     email;
+    username;
+    phone;
+    primaryAddress;
     passwordHash;
     encryptedSeed;
     cryptoMetadataJson;

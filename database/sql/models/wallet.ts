@@ -12,10 +12,19 @@ module.exports = async function (sequelize, models) {
 
   const Wallet = sequelize.define('wallet', {
     // http://docs.sequelizejs.com/manual/tutorial/models-definition.html#data-types
+    username: {
+      type: Sequelize.STRING(200)
+    },
+    phone: {
+      type: Sequelize.STRING(200)
+    },
     email: {
       type: Sequelize.STRING(200)
     },
     passwordHash: {
+      type: Sequelize.STRING(200)
+    },
+    primaryAddress: {
       type: Sequelize.STRING(200)
     },
     encryptedSeed: {
@@ -30,7 +39,9 @@ module.exports = async function (sequelize, models) {
   } as any, {
     indexes: [
       // http://docs.sequelizejs.com/manual/tutorial/models-definition.html#indexes
-      { fields: ['email'] },
+      { fields: ['username'], unique: true },
+      { fields: ['email'], unique: true },
+      { fields: ['primaryAddress'], unique: true },
       { fields: ['email', 'passwordHash'] }
     ]
   } as any);
