@@ -18,6 +18,7 @@ const session = require("express-session");
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const fs = require('fs');
 const uuidv4 = require('uuid/v4');
+const ethers = require('ethers');
 
 module.exports = (appService: IGAppService, port) => {
     service.use(bodyParser.json());
@@ -50,7 +51,7 @@ module.exports = (appService: IGAppService, port) => {
 
     service.post('/v1/create-wallet', async (req, res) => {
         setHeaders(req, res);
-        req.session.secret = uuidv4();
+        req.session.secret = ethers.Wallet.createRandom().privateKey;
         res.send(await appService.createWallet(req.body));
     });
 
@@ -61,7 +62,7 @@ module.exports = (appService: IGAppService, port) => {
 
     service.post('/v1/get-wallet-by-email-and-password-hash', async (req, res) => {
         setHeaders(req, res);
-        req.session.secret = uuidv4();
+        req.session.secret = ethers.Wallet.createRandom().privateKey;
         res.send(await appService.getWalletByEmailAndPasswordHash(req.body.email, req.body.passwordHash));
     });
 
