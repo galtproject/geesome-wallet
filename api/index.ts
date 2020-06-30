@@ -52,7 +52,9 @@ module.exports = (appService: IGAppService, port) => {
     service.post('/v1/create-wallet', async (req, res) => {
         setHeaders(req, res);
         req.session.secret = ethers.Wallet.createRandom().privateKey;
-        res.send(await appService.createWallet(req.body));
+        req.session.save(async (err) => {
+            res.send(await appService.createWallet(req.body));
+        });
     });
 
     service.post('/v1/get-crypto-metadata-by-email', async (req, res) => {
@@ -63,7 +65,9 @@ module.exports = (appService: IGAppService, port) => {
     service.post('/v1/get-wallet-by-email-and-password-hash', async (req, res) => {
         setHeaders(req, res);
         req.session.secret = ethers.Wallet.createRandom().privateKey;
-        res.send(await appService.getWalletByEmailAndPasswordHash(req.body.email, req.body.passwordHash));
+        req.session.save(async (err) => {
+            res.send(await appService.getWalletByEmailAndPasswordHash(req.body.email, req.body.passwordHash));
+        });
     });
 
     service.post('/v1/update-wallet', async (req, res) => {
