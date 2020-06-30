@@ -42,7 +42,7 @@ module.exports = (appService: IGAppService, port) => {
     store.sync();
 
     function setHeaders(res) {
-        res.setHeader('Access-Control-Allow-Origin', "localhost,app.galtproject.io");
+        res.setHeader('Access-Control-Allow-Origin', ['localhost', "app.galtproject.io"]);
         res.setHeader('Access-Control-Allow-Headers', "*");
     }
 
