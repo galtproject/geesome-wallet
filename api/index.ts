@@ -49,12 +49,19 @@ module.exports = (appService: IGAppService, port) => {
         res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
     }
 
+    function setSecret(req) {
+        return new Promise((resolve) => {
+            if(!req.session.secret) {
+                req.session.secret = ethers.Wallet.createRandom().privateKey;
+            }
+            req.session.save(async (err) => {resolve()});
+        });
+    }
+
     service.post('/v1/create-wallet', async (req, res) => {
         setHeaders(req, res);
-        req.session.secret = ethers.Wallet.createRandom().privateKey;
-        req.session.save(async (err) => {
-            res.send(await appService.createWallet(req.body));
-        });
+        await setSecret(req);
+        res.send(await appService.createWallet(req.body));
     });
 
     service.post('/v1/get-crypto-metadata-by-email', async (req, res) => {
@@ -64,10 +71,8 @@ module.exports = (appService: IGAppService, port) => {
 
     service.post('/v1/get-wallet-by-email-and-password-hash', async (req, res) => {
         setHeaders(req, res);
-        req.session.secret = ethers.Wallet.createRandom().privateKey;
-        req.session.save(async (err) => {
-            res.send(await appService.getWalletByEmailAndPasswordHash(req.body.email, req.body.passwordHash));
-        });
+        await setSecret(req);
+        res.send(await appService.getWalletByEmailAndPasswordHash(req.body.email, req.body.passwordHash));
     });
 
     service.post('/v1/update-wallet', async (req, res) => {
