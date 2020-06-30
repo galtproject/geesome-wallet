@@ -63,6 +63,10 @@ class IGAppService {
             { type: 'string', name: 'walletData', value: JSON.stringify(walletData)},
             { type: 'string', name: 'expiredOn', value: expiredOn.toString()}
         ];
+        const expiredOnDate = new Date(parseInt(expiredOn) * 1000);
+        if(new Date() > expiredOnDate) {
+            throw new Error("expired");
+        }
         const isValid = ethereumAuthorization.isSignatureValid(primaryAddress, signature, messageParams);
         if (!isValid) {
             throw new Error("not_valid");

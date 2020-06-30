@@ -64,7 +64,7 @@ describe("databaseValues", function () {
         })()
     });
 
-    it.only("should updateWallet correctly", (done) => {
+    it("should updateWallet correctly", (done) => {
         (async () => {
             let database = await require('../database/sql')(databaseConfig);
             const appService: IGAppService = await require('../services/appService/v1')(database, null);
@@ -75,7 +75,7 @@ describe("databaseValues", function () {
             const seed = lib.generateMnemonic();
             const ethereumWallet = lib.getKeypairByMnemonic(seed, 0, derivationPath);
 
-            const email = 'my@email.com';
+            const email = 'my1@email.com';
             const password = 'my-password-123';
 
             const passwordDerivedKey = lib.getPasswordDerivedKey(password, email, cryptoMetadata.iterations, cryptoMetadata.kdf);
