@@ -14,6 +14,8 @@ const assert = require('assert');
 const lib = require('geesome-wallet-client/src/lib');
 
 describe("databaseValues", function () {
+    this.timeout(10000);
+
     const databaseConfig = {name: 'geesome_wallet_test', options: {logging: true}};
 
     it("should register and login correctly", (done) => {
@@ -44,11 +46,11 @@ describe("databaseValues", function () {
                 cryptoMetadataJson: JSON.stringify(cryptoMetadata)
             });
 
-            const gotCryptoMetadata = await appService.getCryptoMetadataByEmail(email);
+            const gotCryptoMetadata = await appService.getCryptoMetadataByEmail(email.toUpperCase());
 
-            const gotPasswordDerivedKey = lib.getPasswordDerivedKey(password, email, gotCryptoMetadata.iterations, gotCryptoMetadata.kdf);
+            const gotPasswordDerivedKey = lib.getPasswordDerivedKey(password, email.toUpperCase(), gotCryptoMetadata.iterations, gotCryptoMetadata.kdf);
             const gotPasswordHash = lib.getPasswordHash(gotPasswordDerivedKey, password);
-            const gotWallet = await appService.getWalletByEmailAndPasswordHash(email, gotPasswordHash);
+            const gotWallet = await appService.getWalletByEmailAndPasswordHash(email.toUpperCase(), gotPasswordHash);
 
             assert.deepEqual(passwordHash, gotPasswordHash);
             assert.deepEqual(gotWallet.encryptedSeed, encryptedSeed);

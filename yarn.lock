@@ -2072,9 +2072,9 @@ gauge@~2.7.3:
     strip-ansi "^3.0.1"
     wide-align "^1.1.0"
 
-"geesome-wallet-client@git+ssh://git@github.com/galtproject/geesome-wallet-client.git#39d20d9":
+"geesome-wallet-client@git+ssh://git@github.com/galtproject/geesome-wallet-client.git#0d4b207":
   version "1.0.0"
-  resolved "git+ssh://git@github.com/galtproject/geesome-wallet-client.git#39d20d93405f08daee11f0fd86c0ba9d00272f16"
+  resolved "git+ssh://git@github.com/galtproject/geesome-wallet-client.git#0d4b2070d4b48d8de1d1900736e307cbe37fb7f9"
   dependencies:
     aes-js "^3.1.2"
     async "^3.1.0"
