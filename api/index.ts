@@ -30,14 +30,16 @@ module.exports = (appService: IGAppService, port) => {
         fs.writeFileSync('./secret', secret, {encoding: 'utf8'});
     }
 
+    const store = new SequelizeStore({ db: appService.database.sequelize });
     service.use(
       session({
-          secret: secret,
-          store: new SequelizeStore({ db: appService.database.sequelize }),
+          secret,
+          store,
           resave: false, // we support the touch method so per the express-session docs this should be set to false
           proxy: true, // if you do SSL outside of node.
       })
     );
+    store.sync();
 
     function setHeaders(res) {
         res.setHeader('Access-Control-Allow-Origin', "*");
