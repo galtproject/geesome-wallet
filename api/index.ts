@@ -14,9 +14,30 @@ const service = require('restana')({
     maxParamLength: 2000
 });
 const bodyParser = require('body-parser');
+const session = require("express-session");
+const SequelizeStore = require("connect-session-sequelize")(session.Store);
+const fs = require('fs');
+const uuidv4 = require('uuid/v4');
 
 module.exports = (appService: IGAppService, port) => {
     service.use(bodyParser.json());
+
+    let secret;
+    if(fs.existsSync('./secret')) {
+        secret = fs.readFileSync('./secret', {encoding: 'utf8'});
+    } else {
+        secret = uuidv4();
+        fs.writeFileSync('./secret', secret, {encoding: 'utf8'});
+    }
+
+    service.use(
+      session({
+          secret: secret,
+          store: new SequelizeStore({ db: appService.database.sequelize }),
+          resave: false, // we support the touch method so per the express-session docs this should be set to false
+          proxy: true, // if you do SSL outside of node.
+      })
+    );
 
     function setHeaders(res) {
         res.setHeader('Access-Control-Allow-Origin', "*");
@@ -25,6 +46,7 @@ module.exports = (appService: IGAppService, port) => {
 
     service.post('/v1/create-wallet', async (req, res) => {
         setHeaders(res);
+        req.session.secret = uuidv4();
         res.send(await appService.createWallet(req.body));
     });
 
@@ -35,12 +57,18 @@ module.exports = (appService: IGAppService, port) => {
 
     service.post('/v1/get-wallet-by-email-and-password-hash', async (req, res) => {
         setHeaders(res);
+        req.session.secret = uuidv4();
         res.send(await appService.getWalletByEmailAndPasswordHash(req.body.email, req.body.passwordHash));
     });
 
     service.post('/v1/update-wallet', async (req, res) => {
         setHeaders(res);
         res.send(await appService.updateWallet(req.body.primaryAddress, req.body.signature, req.body.walletData, req.body.expiredOn));
+    });
+
+    service.post('/v1/get-session', async (req, res) => {
+        setHeaders(res);
+        res.send({secret: req.session.secret});
     });
 
     service.options("/*", function (req, res, next) {

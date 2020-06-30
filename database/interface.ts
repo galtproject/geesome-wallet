@@ -8,6 +8,8 @@
  */
 
 export interface IGDatabase {
+    sequelize;
+
     flushDatabase(): Promise<void>;
 
     addWallet(wallet): Promise<IGWallet>;
