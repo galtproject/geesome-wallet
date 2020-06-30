@@ -44,6 +44,7 @@ module.exports = (appService: IGAppService, port) => {
     function setHeaders(req, res) {
         res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
         res.setHeader('Access-Control-Allow-Headers', "*");
+        res.setHeader('Access-Control-Allow-Credentials', "true");
     }
 
     service.post('/v1/create-wallet', async (req, res) => {
