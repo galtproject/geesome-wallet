@@ -16,7 +16,8 @@ export interface IGDatabase {
     getWallet(id): Promise<IGWallet>;
     getWalletByEmail(email): Promise<IGWallet>;
     getWalletByField(fieldName, fieldValue): Promise<IGWallet>;
-    getWalletByEmailAndPasswordHash(email, passwordHash): Promise<IGWallet>;
+    getWalletByEmailAndPasswordHash(email, emailPasswordHash): Promise<IGWallet>;
+    getWalletByPhoneAndPasswordHash(phone, phonePasswordHash): Promise<IGWallet>;
     getWalletByPrimaryAddress(primaryAddress): Promise<IGWallet>;
 
     updateWallet(walletData): Promise<any>;
@@ -28,7 +29,9 @@ export interface IGWallet {
     username;
     phone;
     primaryAddress;
-    passwordHash;
-    encryptedSeed;
+    emailPasswordHash;
+    phonePasswordHash;
+    emailEncryptedSeed;
+    phoneEncryptedSeed;
     cryptoMetadataJson;
 }

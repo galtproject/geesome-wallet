@@ -42,6 +42,9 @@ class IGAppService {
     }
 
     async getCryptoMetadataByEmail(email) {
+        if(!email) {
+            return null;
+        }
         const wallet = await this.database.getWalletByEmail(email);
         if(!wallet) {
             return null;
@@ -49,8 +52,23 @@ class IGAppService {
         return JSON.parse(wallet.cryptoMetadataJson);
     }
 
-    async getWalletByEmailAndPasswordHash(email, passwordHash) {
-        return this.database.getWalletByEmailAndPasswordHash(email, passwordHash);
+    async getCryptoMetadataByPhone(phone) {
+        if(!phone) {
+            return null;
+        }
+        const wallet = await this.database.getWalletByField('phone', phone);
+        if(!wallet) {
+            return null;
+        }
+        return JSON.parse(wallet.cryptoMetadataJson);
+    }
+
+    async getWalletByEmailAndPasswordHash(email, emailPasswordHash) {
+        return this.database.getWalletByEmailAndPasswordHash(email, emailPasswordHash);
+    }
+
+    async getWalletByPhoneAndPasswordHash(phone, phonePasswordHash) {
+        return this.database.getWalletByPhoneAndPasswordHash(phone, phonePasswordHash);
     }
 
     async getWalletByPrimaryAddress(primaryAddress) {
@@ -87,7 +105,7 @@ class IGAppService {
 
         await this.database.updateWallet({
             id: wallet.id,
-            ..._.pick(walletData, ['cryptoMetadataJson', 'settingsJson', 'email', 'phone', 'primaryAddress', 'username', 'passwordHash', 'encryptedSeed'])
+            ..._.pick(walletData, ['cryptoMetadataJson', 'settingsJson', 'email', 'phone', 'primaryAddress', 'username', 'emailPasswordHash', 'emailEncryptedSeed', 'phonePasswordHash', 'phoneEncryptedSeed'])
         });
 
         return this.database.getWallet(walletData.id)

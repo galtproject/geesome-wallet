@@ -18,7 +18,7 @@ describe("databaseValues", function () {
 
     const databaseConfig = {name: 'geesome_wallet_test', options: {logging: true}};
 
-    it("should register and login correctly", (done) => {
+    it("should register and login by email correctly", (done) => {
         (async () => {
             let database = await require('../database/sql')(databaseConfig);
             const appService: IGAppService = await require('../services/appService/v1')(database, null);
@@ -31,37 +31,90 @@ describe("databaseValues", function () {
 
             const email = 'my@email.com';
             const password = 'my-password-123';
+            const phone = '+79062354313';
 
             const passwordDerivedKey = lib.getPasswordDerivedKey(password, email, cryptoMetadata.iterations, cryptoMetadata.kdf);
 
-            const encryptedSeed = lib.encrypt(passwordDerivedKey, seed, cryptoMetadata.cryptoCounter);
+            const emailEncryptedSeed = lib.encrypt(passwordDerivedKey, seed, cryptoMetadata.cryptoCounter);
 
-            const passwordHash = lib.getPasswordHash(passwordDerivedKey, password);
+            const emailPasswordHash = lib.getPasswordHash(passwordDerivedKey, password);
 
             await appService.createWallet({
                 email,
-                passwordHash,
-                encryptedSeed,
+                emailPasswordHash,
+                emailEncryptedSeed,
                 primaryAddress: ethereumWallet.address,
                 cryptoMetadataJson: JSON.stringify(cryptoMetadata)
             });
 
-            const gotCryptoMetadata = await appService.getCryptoMetadataByEmail(email.toUpperCase());
+            // Email
+            const gotCryptoMetadataEmail = await appService.getCryptoMetadataByEmail(email.toUpperCase());
 
-            const gotPasswordDerivedKey = lib.getPasswordDerivedKey(password, email.toUpperCase(), gotCryptoMetadata.iterations, gotCryptoMetadata.kdf);
+            const gotPasswordDerivedKey = lib.getPasswordDerivedKey(password, email.toUpperCase(), gotCryptoMetadataEmail.iterations, gotCryptoMetadataEmail.kdf);
             const gotPasswordHash = lib.getPasswordHash(gotPasswordDerivedKey, password);
             const gotWallet = await appService.getWalletByEmailAndPasswordHash(email.toUpperCase(), gotPasswordHash);
 
-            assert.deepEqual(passwordHash, gotPasswordHash);
-            assert.deepEqual(gotWallet.encryptedSeed, encryptedSeed);
+            assert.deepEqual(emailPasswordHash, gotPasswordHash);
+            assert.deepEqual(gotWallet.emailEncryptedSeed, emailEncryptedSeed);
 
-            const gotSeed = lib.decrypt(gotPasswordDerivedKey, gotWallet.encryptedSeed, gotCryptoMetadata.cryptoCounter);
+            const gotSeed = lib.decrypt(gotPasswordDerivedKey, gotWallet.emailEncryptedSeed, gotCryptoMetadataEmail.cryptoCounter);
 
             assert.equal(seed, gotSeed);
 
-            const gotEthereumWallet = lib.getKeypairByMnemonic(gotSeed, 0, gotCryptoMetadata.derivationPath);
+            const gotEthereumWallet = lib.getKeypairByMnemonic(gotSeed, 0, gotCryptoMetadataEmail.derivationPath);
             assert.equal(ethereumWallet.address, gotEthereumWallet.address);
             assert.equal(ethereumWallet.privateKey, gotEthereumWallet.privateKey);
+
+            done();
+        })()
+    });
+
+    it("should register and login by phone correctly", (done) => {
+        (async () => {
+            let database = await require('../database/sql')(databaseConfig);
+            const appService: IGAppService = await require('../services/appService/v1')(database, null);
+
+            const cryptoMetadata = lib.getDefaultCryptoMetadata();
+            const { derivationPath } = cryptoMetadata;
+
+            const seed = lib.generateMnemonic();
+            const ethereumWallet = lib.getKeypairByMnemonic(seed, 0, derivationPath);
+
+            const password = 'my-password-123';
+            const phone = '+79062354313';
+
+            const passwordDerivedKey = lib.getPasswordDerivedKey(password, phone, cryptoMetadata.iterations, cryptoMetadata.kdf);
+
+            const phoneEncryptedSeed = lib.encrypt(passwordDerivedKey, seed, cryptoMetadata.cryptoCounter);
+
+            const phonePasswordHash = lib.getPasswordHash(passwordDerivedKey, password);
+
+            await appService.createWallet({
+                phone,
+                phonePasswordHash,
+                phoneEncryptedSeed,
+                primaryAddress: ethereumWallet.address,
+                cryptoMetadataJson: JSON.stringify(cryptoMetadata)
+            });
+
+            // Phone
+            const gotCryptoMetadataPhone = await appService.getCryptoMetadataByPhone(phone.toUpperCase());
+
+            const gotPasswordDerivedKey = lib.getPasswordDerivedKey(password, phone.toUpperCase(), gotCryptoMetadataPhone.iterations, gotCryptoMetadataPhone.kdf);
+            const gotPasswordHash = lib.getPasswordHash(gotPasswordDerivedKey, password);
+            const gotWallet = await appService.getWalletByPhoneAndPasswordHash(phone.toUpperCase(), gotPasswordHash);
+
+            assert.deepEqual(phonePasswordHash, gotPasswordHash);
+            assert.deepEqual(gotWallet.phoneEncryptedSeed, phoneEncryptedSeed);
+
+            const gotSeed = lib.decrypt(gotPasswordDerivedKey, gotWallet.phoneEncryptedSeed, gotCryptoMetadataPhone.cryptoCounter);
+
+            assert.equal(seed, gotSeed);
+
+            const gotEthereumWallet = lib.getKeypairByMnemonic(gotSeed, 0, gotCryptoMetadataPhone.derivationPath);
+            assert.equal(ethereumWallet.address, gotEthereumWallet.address);
+            assert.equal(ethereumWallet.privateKey, gotEthereumWallet.privateKey);
+
             done();
         })()
     });
@@ -82,14 +135,14 @@ describe("databaseValues", function () {
 
             const passwordDerivedKey = lib.getPasswordDerivedKey(password, email, cryptoMetadata.iterations, cryptoMetadata.kdf);
 
-            const encryptedSeed = lib.encrypt(passwordDerivedKey, seed, cryptoMetadata.cryptoCounter);
+            const emailEncryptedSeed = lib.encrypt(passwordDerivedKey, seed, cryptoMetadata.cryptoCounter);
 
-            const passwordHash = lib.getPasswordHash(passwordDerivedKey, password);
+            const emailPasswordHash = lib.getPasswordHash(passwordDerivedKey, password);
 
             await appService.createWallet({
                 email,
-                passwordHash,
-                encryptedSeed,
+                emailPasswordHash,
+                emailEncryptedSeed,
                 primaryAddress: ethereumWallet.address,
                 cryptoMetadataJson: JSON.stringify(cryptoMetadata)
             });
@@ -97,7 +150,7 @@ describe("databaseValues", function () {
             const updateData = {
                 email: 'my2@email.com',
                 username: 'my-username',
-                phone: '+79062174112'
+                phone: '+79062284122'
             };
 
             const expiredOn = Math.round(new Date().getTime() / 1000) + 60 * 5;
@@ -112,10 +165,10 @@ describe("databaseValues", function () {
 
             await appService.updateWallet(ethereumWallet.address, signature, updateData, expiredOn);
 
-            const previousEmailWallet = await appService.getWalletByEmailAndPasswordHash(email, passwordHash);
+            const previousEmailWallet = await appService.getWalletByEmailAndPasswordHash(email, emailPasswordHash);
             assert.equal(previousEmailWallet, null);
 
-            const gotWallet = await appService.getWalletByEmailAndPasswordHash(updateData.email, passwordHash);
+            const gotWallet = await appService.getWalletByEmailAndPasswordHash(updateData.email, emailPasswordHash);
             assert.equal(gotWallet.email, updateData.email);
             assert.equal(gotWallet.username, updateData.username);
             assert.equal(gotWallet.phone, updateData.phone);

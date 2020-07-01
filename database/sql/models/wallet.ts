@@ -21,13 +21,19 @@ module.exports = async function (sequelize, models) {
     email: {
       type: Sequelize.STRING(200)
     },
-    passwordHash: {
+    emailPasswordHash: {
+      type: Sequelize.STRING(200)
+    },
+    phonePasswordHash: {
       type: Sequelize.STRING(200)
     },
     primaryAddress: {
       type: Sequelize.STRING(200)
     },
-    encryptedSeed: {
+    emailEncryptedSeed: {
+      type: Sequelize.STRING
+    },
+    phoneEncryptedSeed: {
       type: Sequelize.STRING
     },
     cryptoMetadataJson: {
@@ -42,7 +48,7 @@ module.exports = async function (sequelize, models) {
       { fields: ['username'], unique: true },
       { fields: ['email'], unique: true },
       { fields: ['primaryAddress'], unique: true },
-      { fields: ['email', 'passwordHash'] }
+      { fields: ['email', 'emailPasswordHash'] }
     ]
   } as any);
 

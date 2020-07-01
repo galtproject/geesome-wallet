@@ -16,13 +16,11 @@ export interface IGAppService {
 
     getCryptoMetadataByEmail(email): Promise<any>;
 
-    getWalletByEmailAndPasswordHash(email, passwordHash): Promise<IGWallet>;
+    getCryptoMetadataByPhone(phone): Promise<any>;
+
+    getWalletByEmailAndPasswordHash(email, emailPasswordHash): Promise<IGWallet>;
+
+    getWalletByPhoneAndPasswordHash(phone, phonePasswordHash): Promise<IGWallet>;
 
     updateWallet(primaryAddress, signature, walletData, expiredOn): Promise<IGWallet>;
-}
-
-export interface TokenBalanceResponse {
-    contractAddress: string;
-    balance: string;
-    blockNumber: number;
 }

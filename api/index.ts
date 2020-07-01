@@ -69,10 +69,15 @@ module.exports = (appService: IGAppService, port) => {
         res.send(await appService.getCryptoMetadataByEmail(req.body.email));
     });
 
+    service.post('/v1/get-crypto-metadata-by-phone', async (req, res) => {
+        setHeaders(req, res);
+        res.send(await appService.getCryptoMetadataByEmail(req.body.phone));
+    });
+
     service.post('/v1/get-wallet-by-email-and-password-hash', async (req, res) => {
         setHeaders(req, res);
         await setSecret(req);
-        res.send(await appService.getWalletByEmailAndPasswordHash(req.body.email, req.body.passwordHash));
+        res.send(await appService.getWalletByEmailAndPasswordHash(req.body.email, req.body.emailPasswordHash));
     });
 
     service.post('/v1/update-wallet', async (req, res) => {
