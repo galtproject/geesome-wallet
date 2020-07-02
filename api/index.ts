@@ -83,7 +83,7 @@ module.exports = (appService: IGAppService, port) => {
     service.post('/v1/get-wallet-by-phone-and-password-hash', async (req, res) => {
         setHeaders(req, res);
         await setSecret(req);
-        res.send(await appService.getWalletByPhoneAndPasswordHash(req.body.email, req.body.phonePasswordHash));
+        res.send(await appService.getWalletByPhoneAndPasswordHash(req.body.phone, req.body.phonePasswordHash));
     });
 
     service.post('/v1/update-wallet', async (req, res) => {
