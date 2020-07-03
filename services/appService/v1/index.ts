@@ -103,10 +103,7 @@ class IGAppService {
             }
         });
 
-        await this.database.updateWallet({
-            id: wallet.id,
-            ..._.pick(walletData, ['cryptoMetadataJson', 'settingsJson', 'email', 'phone', 'primaryAddress', 'username', 'emailPasswordHash', 'emailEncryptedSeed', 'phonePasswordHash', 'phoneEncryptedSeed'])
-        });
+        await this.database.updateWallet({ id: wallet.id, ...walletData });
 
         return this.database.getWallet(walletData.id)
     }
