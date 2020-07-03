@@ -97,7 +97,7 @@ module.exports = (appService: IGAppService, port) => {
 
     service.post('/v1/get-session', async (req, res) => {
         setHeaders(req, res);
-        res.send({secret: req.session.secret, wallet: await appService.database.getWallet(req.session.walletId)});
+        res.send({secret: req.session.secret, wallet: req.session.walletId ? await appService.database.getWallet(req.session.walletId) : null});
     });
 
     service.options("/*", function (req, res, next) {
