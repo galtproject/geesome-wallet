@@ -49,8 +49,9 @@ module.exports = (appService: IGAppService, port) => {
         res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
     }
 
-    function setSecret(req) {
+    function setSecret(req, wallet) {
         return new Promise((resolve) => {
+            req.session.walletId = wallet ? wallet.id : null;
             if(!req.session.secret) {
                 req.session.secret = ethers.Wallet.createRandom().privateKey;
             }
@@ -60,8 +61,9 @@ module.exports = (appService: IGAppService, port) => {
 
     service.post('/v1/create-wallet', async (req, res) => {
         setHeaders(req, res);
-        await setSecret(req);
-        res.send(await appService.createWallet(req.body));
+        const wallet = await appService.createWallet(req.body);
+        await setSecret(req, wallet);
+        res.send(wallet);
     });
 
     service.post('/v1/get-crypto-metadata-by-email', async (req, res) => {
@@ -76,14 +78,16 @@ module.exports = (appService: IGAppService, port) => {
 
     service.post('/v1/get-wallet-by-email-and-password-hash', async (req, res) => {
         setHeaders(req, res);
-        await setSecret(req);
-        res.send(await appService.getWalletByEmailAndPasswordHash(req.body.email, req.body.emailPasswordHash));
+        const wallet = await appService.getWalletByEmailAndPasswordHash(req.body.email, req.body.emailPasswordHash);
+        await setSecret(req, wallet);
+        res.send(wallet);
     });
 
     service.post('/v1/get-wallet-by-phone-and-password-hash', async (req, res) => {
         setHeaders(req, res);
-        await setSecret(req);
-        res.send(await appService.getWalletByPhoneAndPasswordHash(req.body.phone, req.body.phonePasswordHash));
+        const wallet = await appService.getWalletByPhoneAndPasswordHash(req.body.phone, req.body.phonePasswordHash);
+        await setSecret(req, wallet);
+        res.send(wallet);
     });
 
     service.post('/v1/update-wallet', async (req, res) => {
@@ -93,7 +97,7 @@ module.exports = (appService: IGAppService, port) => {
 
     service.post('/v1/get-session', async (req, res) => {
         setHeaders(req, res);
-        res.send({secret: req.session.secret});
+        res.send({secret: req.session.secret, wallet: await appService.database.getWallet(req.session.walletId)});
     });
 
     service.options("/*", function (req, res, next) {
