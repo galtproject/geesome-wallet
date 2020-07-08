@@ -11,6 +11,7 @@ import {IGDatabase} from "./database/interface";
 import {IGAppService} from "./services/appService/interface";
 
 const config = require('./config.ts');
+const fs = require('fs');
 
 (async() => {
     const databaseConfig: any = {};
@@ -21,6 +22,10 @@ const config = require('./config.ts');
     const database: IGDatabase = await require('./database/' + config.database)(databaseConfig);
 
     const appService: IGAppService = await require('./services/appService/' + config.appService)(database, null);
+
+    if(fs.existsSync('./admins.json')) {
+        appService.setAdminsAddresses(require('./admins.json'));
+    }
 
     const server = await require('./api/')(appService, process.env.API_PORT || config.apiPort);
 

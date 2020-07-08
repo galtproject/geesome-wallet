@@ -7,10 +7,14 @@
  * [Basic Agreement](ipfs/QmaCiXUmSrP16Gz8Jdzq6AJESY1EAANmmwha15uR3c1bsS)).
  */
 
-import { IGWallet, IGDatabase } from "../../database/interface";
+import {IGWallet, IGDatabase, IGPendingWallet} from "../../database/interface";
 
 export interface IGAppService {
+    adminsAddresses: string[];
+
     database: IGDatabase;
+
+    createPendingWallet(walletData): Promise<IGPendingWallet>;
 
     createWallet(walletData): Promise<IGWallet>;
 
@@ -26,5 +30,9 @@ export interface IGAppService {
 
     getWalletByUsernameAndPasswordHash(username, phonePasswordHash): Promise<IGWallet>;
 
-    updateWallet(primaryAddress, signature, walletData, expiredOn): Promise<IGWallet>;
+    updateWallet(primaryAddress, signature, walletData, expiredOn): Promise<{pendingWallet: IGPendingWallet, wallet: IGWallet}>;
+
+    setAdminsAddresses(adminsAddresses: string[]);
+
+    confirmPendingWalletByAdmin(signature, pendingWalletId, confirmMethods?);
 }

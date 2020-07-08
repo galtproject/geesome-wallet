@@ -8,5 +8,5 @@
  */
 
 module.exports = {
-    hashSalt: '$2b$10$mhvPfUjTTfswdxnx9mx0H.'
+
 };

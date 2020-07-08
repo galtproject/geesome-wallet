@@ -8,6 +8,7 @@
  */
 
 const sigUtil = require('eth-sig-util');
+const _ = require('lodash');
 
 module.exports = {
   getAccountAddressBySignature(signature, messageParams) {
@@ -17,5 +18,10 @@ module.exports = {
     const signedByAddress = this.getAccountAddressBySignature(signature, messageParams);
     console.log('signedByAddress', signedByAddress);
     return signedByAddress.toLowerCase() === address.toLowerCase();
+  },
+  isSignatureValidByAddressesList(addressList, signature, messageParams) {
+    const signedByAddress = this.getAccountAddressBySignature(signature, messageParams);
+    console.log('signedByAddress', signedByAddress);
+    return _.includes(addressList.map(a => a.toLowerCase()), signedByAddress.toLowerCase());
   }
 };
