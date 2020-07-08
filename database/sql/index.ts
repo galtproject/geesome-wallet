@@ -63,6 +63,7 @@ class SqlDatabase implements IGDatabase {
     }
 
     async getWalletByField(fieldName, fieldValue) {
+        fieldValue = fieldValue.toLowerCase();
         return this.models.Wallet.findOne({ where: { [fieldName]: fieldValue }});
     }
 
@@ -78,6 +79,11 @@ class SqlDatabase implements IGDatabase {
     async getWalletByPhoneAndPasswordHash(phone, phonePasswordHash) {
         phone = phone.toLowerCase();
         return this.models.Wallet.findOne({ where: { phone, phonePasswordHash }});
+    }
+
+    async getWalletByUsernameAndPasswordHash(username, usernamePasswordHash) {
+        username = username.toLowerCase();
+        return this.models.Wallet.findOne({ where: { username, usernamePasswordHash }});
     }
 
     async getWalletByPrimaryAddress(primaryAddress) {

@@ -119,6 +119,56 @@ describe("databaseValues", function () {
         })()
     });
 
+    it("should register and login by username correctly", (done) => {
+        (async () => {
+            let database = await require('../database/sql')(databaseConfig);
+            const appService: IGAppService = await require('../services/appService/v1')(database, null);
+
+            const cryptoMetadata = lib.getDefaultCryptoMetadata();
+            const { derivationPath } = cryptoMetadata;
+
+            const seed = lib.generateMnemonic();
+            const ethereumWallet = lib.getKeypairByMnemonic(seed, 0, derivationPath);
+
+            const password = 'my-password-123';
+            const username = 'my-username';
+
+            const passwordDerivedKey = lib.getPasswordDerivedKey(password, username, cryptoMetadata.iterations, cryptoMetadata.kdf);
+
+            const usernameEncryptedSeed = lib.encrypt(passwordDerivedKey, seed, cryptoMetadata.cryptoCounter);
+
+            const usernamePasswordHash = lib.getPasswordHash(passwordDerivedKey, password);
+
+            await appService.createWallet({
+                username,
+                usernamePasswordHash,
+                usernameEncryptedSeed,
+                primaryAddress: ethereumWallet.address,
+                cryptoMetadataJson: JSON.stringify(cryptoMetadata)
+            });
+
+            // Phone
+            const gotCryptoMetadataUsername = await appService.getCryptoMetadataByUsername(username.toUpperCase());
+
+            const gotPasswordDerivedKey = lib.getPasswordDerivedKey(password, username.toUpperCase(), gotCryptoMetadataUsername.iterations, gotCryptoMetadataUsername.kdf);
+            const gotPasswordHash = lib.getPasswordHash(gotPasswordDerivedKey, password);
+            const gotWallet = await appService.getWalletByUsernameAndPasswordHash(username.toUpperCase(), gotPasswordHash);
+
+            assert.deepEqual(usernamePasswordHash, gotPasswordHash);
+            assert.deepEqual(gotWallet.usernameEncryptedSeed, usernameEncryptedSeed);
+
+            const gotSeed = lib.decrypt(gotPasswordDerivedKey, gotWallet.usernameEncryptedSeed, gotCryptoMetadataUsername.cryptoCounter);
+
+            assert.equal(seed, gotSeed);
+
+            const gotEthereumWallet = lib.getKeypairByMnemonic(gotSeed, 0, gotCryptoMetadataUsername.derivationPath);
+            assert.equal(ethereumWallet.address, gotEthereumWallet.address);
+            assert.equal(ethereumWallet.privateKey, gotEthereumWallet.privateKey);
+
+            done();
+        })()
+    });
+
     it("should updateWallet correctly", (done) => {
         (async () => {
             let database = await require('../database/sql')(databaseConfig);

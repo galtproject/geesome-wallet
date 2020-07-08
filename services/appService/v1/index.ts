@@ -63,12 +63,27 @@ class IGAppService {
         return JSON.parse(wallet.cryptoMetadataJson);
     }
 
+    async getCryptoMetadataByUsername(phone) {
+        if(!phone) {
+            return null;
+        }
+        const wallet = await this.database.getWalletByField('username', phone);
+        if(!wallet) {
+            return null;
+        }
+        return JSON.parse(wallet.cryptoMetadataJson);
+    }
+
     async getWalletByEmailAndPasswordHash(email, emailPasswordHash) {
         return this.database.getWalletByEmailAndPasswordHash(email, emailPasswordHash);
     }
 
     async getWalletByPhoneAndPasswordHash(phone, phonePasswordHash) {
         return this.database.getWalletByPhoneAndPasswordHash(phone, phonePasswordHash);
+    }
+
+    async getWalletByUsernameAndPasswordHash(username, usernamePasswordHash) {
+        return this.database.getWalletByUsernameAndPasswordHash(username, usernamePasswordHash);
     }
 
     async getWalletByPrimaryAddress(primaryAddress) {
