@@ -18,9 +18,13 @@ export interface IGAppService {
 
     getCryptoMetadataByPhone(phone): Promise<any>;
 
+    getCryptoMetadataByUsername(phone): Promise<any>;
+
     getWalletByEmailAndPasswordHash(email, emailPasswordHash): Promise<IGWallet>;
 
     getWalletByPhoneAndPasswordHash(phone, phonePasswordHash): Promise<IGWallet>;
+
+    getWalletByUsernameAndPasswordHash(username, phonePasswordHash): Promise<IGWallet>;
 
     updateWallet(primaryAddress, signature, walletData, expiredOn): Promise<IGWallet>;
 }

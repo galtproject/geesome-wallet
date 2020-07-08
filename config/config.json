@@ -1,0 +1,16 @@
+{
+  "production": {
+    "name": "geesome_wallet",
+    "user": "geesome",
+    "password": "geesome",
+    "logging": true,
+    "host": "localhost",
+    "dialect": "postgres",
+    "operatorsAliases": false,
+    "pool": {
+      "max": 5, "min": 0, "acquire": 30000, "idle": 10000},
+    "dialectOptions": {
+      "multipleStatements": true, "charset": "utf8"
+    }
+  }
+}

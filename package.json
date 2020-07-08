@@ -9,7 +9,7 @@
     "testCoverage": "./node_modules/.bin/nyc -r lcov -e .ts -x \"*.test.ts\" ./node_modules/.bin/mocha -r ts-node/register test/**/*.test.ts && nyc report",
     "recreate-test-database": "dropdb geesome_wallet_test && createdb geesome_wallet_test",
     "migrate-database": "NODE_ENV=production ./node_modules/.bin/sequelize db:migrate",
-    "create-migration": "./node_modules/.bin/sequelize migration:generate --migrations-path database/mysql/migrations --name"
+    "create-migration": "./node_modules/.bin/sequelize migration:generate --migrations-path database/sql/migrations --name"
   },
   "author": "",
   "license": "ISC",
@@ -46,7 +46,7 @@
     "@types/node": "^13.1.6",
     "chai": "^4.2.0",
     "chai-http": "^4.2.1",
-    "geesome-wallet-client": "git+ssh://git@github.com/galtproject/geesome-wallet-client.git#454ec94",
+    "geesome-wallet-client": "git+ssh://git@github.com/galtproject/geesome-wallet-client.git#6d6bec4",
     "mocha": "^5.2.0",
     "ts-node": "^7.0.1",
     "typings": "^2.1.1"
