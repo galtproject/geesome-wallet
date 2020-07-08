@@ -1,7 +1,7 @@
 {
   "production": {
     "name": "geesome_wallet",
-    "user": "geesome",
+    "username": "geesome",
     "password": "geesome",
     "logging": true,
     "host": "localhost",

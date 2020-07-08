@@ -9,7 +9,7 @@
     "testCoverage": "./node_modules/.bin/nyc -r lcov -e .ts -x \"*.test.ts\" ./node_modules/.bin/mocha -r ts-node/register test/**/*.test.ts && nyc report",
     "recreate-test-database": "dropdb geesome_wallet_test && createdb geesome_wallet_test",
     "migrate-database": "NODE_ENV=production ./node_modules/.bin/sequelize db:migrate",
-    "create-migration": "./node_modules/.bin/sequelize migration:generate --migrations-path database/sql/migrations --name"
+    "create-migration": "./node_modules/.bin/sequelize migration:generate --migrations-path migrations --name"
   },
   "author": "",
   "license": "ISC",
