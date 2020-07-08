@@ -16,12 +16,15 @@ const lib = require('geesome-wallet-client/src/lib');
 describe("databaseValues", function () {
     this.timeout(10000);
 
-    const databaseConfig = {name: 'geesome_wallet_test', options: {logging: true}};
+    const databaseConfig = {name: 'geesome_wallet_test', options: {logging: false}};
+
+    const adminWallet = lib.getKeypairByMnemonic(lib.generateMnemonic(), 0, `m/44'/60'/0'/0/`);
 
     it("should register and login by email correctly", (done) => {
         (async () => {
             let database = await require('../database/sql')(databaseConfig);
             const appService: IGAppService = await require('../services/appService/v1')(database, null);
+            appService.setAdminsAddresses([adminWallet.address]);
 
             const cryptoMetadata = lib.getDefaultCryptoMetadata();
             const { derivationPath } = cryptoMetadata;
@@ -31,7 +34,6 @@ describe("databaseValues", function () {
 
             const email = 'my@email.com';
             const password = 'my-password-123';
-            const phone = '+79062354313';
 
             const passwordDerivedKey = lib.getPasswordDerivedKey(password, email, cryptoMetadata.iterations, cryptoMetadata.kdf);
 
@@ -39,7 +41,7 @@ describe("databaseValues", function () {
 
             const emailPasswordHash = lib.getPasswordHash(passwordDerivedKey, password);
 
-            await appService.createWallet({
+            const pendingWallet = await appService.createPendingWallet({
                 email,
                 emailPasswordHash,
                 emailEncryptedSeed,
@@ -47,8 +49,29 @@ describe("databaseValues", function () {
                 cryptoMetadataJson: JSON.stringify(cryptoMetadata)
             });
 
+            const confirmPendingWalletMessage = [
+                { type: 'string', name: 'action', value: 'confirmPendingWallet'},
+                { type: 'string', name: 'pendingWalletId', value: pendingWallet.id.toString()},
+                { type: 'string', name: 'confirmMethods', value: ['email']}
+            ];
+            console.log('confirmPendingWalletMessage', confirmPendingWalletMessage);
+
+            const incorrectSignature = lib.signMessage(ethereumWallet.privateKey, confirmPendingWalletMessage);
+            try {
+                await appService.confirmPendingWalletByAdmin(incorrectSignature, pendingWallet.id, ['email']);
+                assert.equal(false, true);
+            } catch (e) {
+                assert.equal(e.message.indexOf('not_valid') > -1, true);
+            }
+
+            let gotCryptoMetadataEmail = await appService.getCryptoMetadataByEmail(email.toUpperCase());
+            assert.equal(gotCryptoMetadataEmail, null);
+
+            const correctSignature = lib.signMessage(adminWallet.privateKey, confirmPendingWalletMessage);
+            await appService.confirmPendingWalletByAdmin(correctSignature, pendingWallet.id, ['email']);
+
             // Email
-            const gotCryptoMetadataEmail = await appService.getCryptoMetadataByEmail(email.toUpperCase());
+            gotCryptoMetadataEmail = await appService.getCryptoMetadataByEmail(email.toUpperCase());
 
             const gotPasswordDerivedKey = lib.getPasswordDerivedKey(password, email.toUpperCase(), gotCryptoMetadataEmail.iterations, gotCryptoMetadataEmail.kdf);
             const gotPasswordHash = lib.getPasswordHash(gotPasswordDerivedKey, password);
@@ -173,6 +196,7 @@ describe("databaseValues", function () {
         (async () => {
             let database = await require('../database/sql')(databaseConfig);
             const appService: IGAppService = await require('../services/appService/v1')(database, null);
+            appService.setAdminsAddresses([adminWallet.address]);
 
             const cryptoMetadata = lib.getDefaultCryptoMetadata();
             const { derivationPath } = cryptoMetadata;
@@ -199,7 +223,7 @@ describe("databaseValues", function () {
 
             const updateData = {
                 email: 'my2@email.com',
-                username: 'my-username',
+                username: 'my-username-2',
                 phone: '+79062284122'
             };
 
@@ -213,7 +237,14 @@ describe("databaseValues", function () {
             console.log('ethereumWallet.address', ethereumWallet.address);
             const signature = lib.signMessage(ethereumWallet.privateKey, messageParams);
 
-            await appService.updateWallet(ethereumWallet.address, signature, updateData, expiredOn);
+            const {pendingWallet} = await appService.updateWallet(ethereumWallet.address, signature, updateData, expiredOn);
+            const confirmPendingWalletMessage = [
+                { type: 'string', name: 'action', value: 'confirmPendingWallet'},
+                { type: 'string', name: 'pendingWalletId', value: pendingWallet.id.toString()},
+                { type: 'string', name: 'confirmMethods', value: ['email', 'phone']}
+            ];
+            const correctSignature = lib.signMessage(adminWallet.privateKey, confirmPendingWalletMessage);
+            await appService.confirmPendingWalletByAdmin(correctSignature, pendingWallet.id, ['email', 'phone']);
 
             const previousEmailWallet = await appService.getWalletByEmailAndPasswordHash(email, emailPasswordHash);
             assert.equal(previousEmailWallet, null);

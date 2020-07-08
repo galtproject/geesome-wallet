@@ -12,6 +12,9 @@ export interface IGDatabase {
 
     flushDatabase(): Promise<void>;
 
+    addPendingWallet(wallet): Promise<IGPendingWallet>;
+    getPendingWallet(id): Promise<IGPendingWallet>;
+
     addWallet(wallet): Promise<IGWallet>;
     getWallet(id): Promise<IGWallet>;
     getWalletByEmail(email): Promise<IGWallet>;
@@ -23,6 +26,25 @@ export interface IGDatabase {
 
 
     updateWallet(walletData): Promise<any>;
+}
+
+export interface IGPendingWallet {
+    id;
+    email;
+    emailConfirmationCode;
+    username;
+    phone;
+    phoneConfirmationCode;
+    primaryAddress;
+    emailPasswordHash;
+    phonePasswordHash;
+    usernamePasswordHash;
+    emailEncryptedSeed;
+    phoneEncryptedSeed;
+    usernameEncryptedSeed;
+    cryptoMetadataJson;
+
+    toJSON();
 }
 
 export interface IGWallet {

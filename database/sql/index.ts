@@ -57,6 +57,29 @@ class SqlDatabase implements IGDatabase {
         return this.models.Wallet.create(wallet);
     }
 
+    async addPendingWallet(wallet) {
+        lowerCaseFields.forEach(field => {
+            if(wallet[field]) {
+                wallet[field] = wallet[field].toLowerCase();
+            }
+        });
+        return this.models.PendingWallet.create(wallet);
+    }
+
+    async getPendingWallet(walletId) {
+        return this.models.PendingWallet.findOne({ where: { id: walletId }});
+    }
+
+    async getPendingWalletByEmailAndConfirmationCode(email, emailConfirmationCode) {
+        email = email.toLowerCase();
+        return this.models.PendingWallet.findOne({ where: { email, emailConfirmationCode }});
+    }
+
+    async getPendingWalletByPhoneAndConfirmationCode(phone, phoneConfirmationCode) {
+        phone = phone.toLowerCase();
+        return this.models.PendingWallet.findOne({ where: { phone, phoneConfirmationCode }});
+    }
+
     async getWalletByEmail(email) {
         email = email.toLowerCase();
         return this.models.Wallet.findOne({ where: { email }});
