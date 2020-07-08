@@ -1,6 +1,6 @@
 {
   "production": {
-    "name": "geesome_wallet",
+    "database": "geesome_wallet",
     "username": "geesome",
     "password": "geesome",
     "logging": true,
