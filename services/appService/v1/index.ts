@@ -45,7 +45,7 @@ class IGAppService {
         }
         if (walletData.phone) {
             walletData.phoneConfirmationCode = Math.round(Math.random() * 10 ** 6);
-            smsc.send(walletData.phone, walletData.phoneConfirmationCode.toString());
+            smsc.send([walletData.phone], walletData.phoneConfirmationCode.toString());
         }
         console.log('walletData', walletData);
         const pendingWalletResult = await this.database.addPendingWallet(walletData);
