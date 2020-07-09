@@ -12,7 +12,7 @@ import {IGAppService} from "./services/appService/interface";
 
 const config = require('./config.ts');
 const fs = require('fs');
-const helpers = require('./helpers');
+const helpers = require('./services/appService/helpers');
 
 (async() => {
     const databaseConfig: any = {};
