@@ -28,6 +28,7 @@ const fs = require('fs');
     }
 
     console.log('database.getWalletCount', await database.getWalletCount());
+    console.log('database.getWalletList', await database.getWalletList());
 
     const server = await require('./api/')(appService, process.env.API_PORT || config.apiPort);
 

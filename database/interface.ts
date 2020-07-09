@@ -21,6 +21,7 @@ export interface IGDatabase {
 
     addWallet(wallet): Promise<IGWallet>;
     getWalletCount(): Promise<number>;
+    getWalletList(): Promise<IGWallet[]>;
     getWallet(id): Promise<IGWallet>;
     getWalletByEmail(email): Promise<IGWallet>;
     getWalletByField(fieldName, fieldValue): Promise<IGWallet>;
