@@ -48,7 +48,7 @@ class IGAppService {
             smsc.send([walletData.phone], walletData.phoneConfirmationCode.toString());
         }
         console.log('walletData', walletData);
-        const pendingWalletResult = await this.database.addPendingWallet(walletData);
+        const pendingWalletResult = (await this.database.addPendingWallet(walletData)).toJSON();
         delete pendingWalletResult.emailConfirmationCode;
         delete pendingWalletResult.phoneConfirmationCode;
         return pendingWalletResult;
