@@ -25,6 +25,8 @@ module.exports = {
 
     const gmailUser = process.env.EMAIL_USER;
     const gmailPass = process.env.EMAIL_PASS;
+    console.log('gmailUser', gmailUser);
+    console.log('gmailPass', gmailPass);
     if(!gmailUser || !gmailPass) {
       return console.error('EMAIL_USER or EMAIL_PASS does not set');
     }
