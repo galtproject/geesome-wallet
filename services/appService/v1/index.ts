@@ -93,7 +93,7 @@ class IGAppService {
         } else {
             const wallet = await this.database.addWallet(resultWalletData);
             await this.database.updatePendingWallet({
-                id: pendingWallet.updateWalletId,
+                id: pendingWalletId,
                 updateWalletId: wallet.id
             });
             return wallet;
