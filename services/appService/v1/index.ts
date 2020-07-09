@@ -35,14 +35,17 @@ class IGAppService {
         this.adminsAddresses = adminsAddresses;
     }
 
-    createPendingWallet(walletData, updateWalletId = null) {
+    async createPendingWallet(walletData, updateWalletId = null) {
         walletData.updateWalletId = updateWalletId;
         walletData.expiredOn = new Date(new Date().getTime() + 1000 * 60 * 60);
         if (walletData.email) {
             walletData.emailConfirmationCode = Math.round(Math.random() * 10 ** 6);
             helpers.sendEmail(walletData.email, 'Confirmation code', walletData.emailConfirmationCode.toString());
         }
-        return this.database.addPendingWallet(walletData);
+        const pendingWalletResult = await this.database.addPendingWallet(walletData);
+        delete pendingWalletResult.emailConfirmationCode;
+        delete pendingWalletResult.phoneConfirmationCode;
+        return pendingWalletResult;
     }
 
     async createOrUpdateWalletByPendingWallet(pendingWalletId, confirmMethods = []) {
