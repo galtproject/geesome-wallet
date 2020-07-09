@@ -14,6 +14,8 @@ export interface IGAppService {
 
     database: IGDatabase;
 
+    register(walletData): Promise<{wallet?: IGWallet, pendingWallet?: IGPendingWallet}>;
+
     createPendingWallet(walletData): Promise<IGPendingWallet>;
 
     createWallet(walletData): Promise<IGWallet>;

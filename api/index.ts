@@ -62,19 +62,11 @@ module.exports = (appService: IGAppService, port) => {
         });
     }
 
-    //TODO: deprecated, delete
-    service.post('/v1/create-wallet', async (req, res) => {
-        setHeaders(req, res);
-        const wallet = await appService.createWallet(req.body);
-        await setSecret(req, wallet);
-        res.send(wallet);
-    });
-
     service.post('/v1/register', async (req, res) => {
         setHeaders(req, res);
-        const pendingWallet = await appService.createPendingWallet(req.body);
-        await setSecret(req, null, pendingWallet);
-        res.send({pendingWallet});
+        const {wallet, pendingWallet} = await appService.register(req.body);
+        await setSecret(req, wallet, pendingWallet);
+        res.send({wallet, pendingWallet});
     });
 
     service.post('/v1/confirm-wallet', async (req, res) => {

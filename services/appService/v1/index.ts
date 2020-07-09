@@ -36,6 +36,16 @@ class IGAppService {
         this.adminsAddresses = adminsAddresses;
     }
 
+    async register(walletData) {
+        if(walletData.email || walletData.phone) {
+            const pendingWallet = await this.createPendingWallet(walletData);
+            return {pendingWallet};
+        } else {
+            const wallet = await this.createWallet(walletData);
+            return {wallet};
+        }
+    }
+
     async createPendingWallet(walletData, updateWalletId = null) {
         walletData.updateWalletId = updateWalletId;
         walletData.expiredOn = new Date(new Date().getTime() + 1000 * 60 * 60);
