@@ -21,7 +21,10 @@ const smsc = {
       psw,
       mes,
       phones: phones.join(',')
-    })).then(res => res.data);
+    })).then(res => {
+      console.log('smsc send', res.data);
+      return res.data;
+    });
   }
 };
 

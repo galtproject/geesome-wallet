@@ -40,7 +40,10 @@ const unisender = {
       list_id: listId,
       email: emailTo,
       body: htmlBody
-    })).then(res => res.data.result);
+    })).then(res => {
+      console.log('unisender sendEmail', res.data.result);
+      return res.data.result;
+    });
   }
 };
 
