@@ -24,6 +24,7 @@
     "eth-sig-util": "^2.5.3",
     "ethers": "^4.0.25",
     "express-bearer-token": "^2.4.0",
+    "nodemailer": "^2.3.2",
     "express-session": "^1.17.1",
     "fs": "0.0.1-security",
     "lodash": "^4.17.11",
