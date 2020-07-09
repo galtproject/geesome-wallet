@@ -12,7 +12,7 @@ import {IGAppService} from "./services/appService/interface";
 
 const config = require('./config.ts');
 const fs = require('fs');
-const helpers = require('./services/appService/v1/helpers');
+const unisender = require('./services/appService/v1/unisender');
 
 (async() => {
     const databaseConfig: any = {};
@@ -27,7 +27,6 @@ const helpers = require('./services/appService/v1/helpers');
     if(fs.existsSync('./admins.json')) {
         appService.setAdminsAddresses(require('./admins.json'));
     }
-    helpers.sendEmail('jonybange@yandex.com', 'test', 'test1');
 
     const server = await require('./api/')(appService, process.env.API_PORT || config.apiPort);
 
