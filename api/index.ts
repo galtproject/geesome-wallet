@@ -11,7 +11,8 @@ import {IGAppService} from "../services/appService/interface";
 
 const service = require('restana')({
     ignoreTrailingSlash: true,
-    maxParamLength: 2000
+    maxParamLength: 2000,
+    errorHandler
 });
 const bodyParser = require('body-parser');
 const session = require("express-session");
@@ -149,5 +150,10 @@ module.exports = (appService: IGAppService, port) => {
     
     return service.start(port);
 };
+
+function errorHandler (err, req, res) {
+    console.log(`Something was wrong: ${err.message || err}`, err);
+    res.send(err)
+}
 
 
