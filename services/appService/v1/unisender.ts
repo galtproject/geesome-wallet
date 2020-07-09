@@ -8,22 +8,8 @@
  */
 export {};
 
-const FormData = require('form-data');
-const _ = require('lodash');
-const axios = require('axios');
-const http = axios.create({
-  baseURL: 'https://api.unisender.com/en/api/',
-  headers: {
-    'Content-Type': 'multipart/form-data'
-  }
-});
-
-http.interceptors.request.use(config => {
-  if (config.data instanceof FormData) {
-    Object.assign(config.headers, config.data.getHeaders());
-  }
-  return config;
-});
+const {getMultipartFormHttp, formData} = require('./helpers');
+const http = getMultipartFormHttp('https://api.unisender.com/en/api/');
 
 const api_key = process.env.UNISENDER_KEY;
 const sender_email = process.env.UNISENDER_FROM_EMAIL;
@@ -33,7 +19,7 @@ const unisender = {
     return http.post('getLists', formData({
       format: 'json',
       api_key
-    })).then(res => res.data);
+    })).then(res => res.data.result);
   },
 
   createList(title) {
@@ -41,7 +27,7 @@ const unisender = {
       format: 'json',
       api_key,
       title
-    })).then(res => res.data);
+    })).then(res => res.data.result);
   },
 
   sendEmail(emailTo, subject, htmlBody, listId = 2) {
@@ -54,16 +40,12 @@ const unisender = {
       list_id: listId,
       email: emailTo,
       body: htmlBody
-    })).then(res => res.data);
+    })).then(res => res.data.result);
   }
 };
 
-function formData(obj) {
-  const bodyFormData = new FormData();
-  _.forEach(obj, (value, name) => {
-    bodyFormData.append(name, value);
-  });
-  return bodyFormData;
-}
-
 module.exports = unisender;
+//
+// unisender.getLists().then(res => {
+//   console.log('res', res);
+// });
