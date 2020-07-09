@@ -20,6 +20,7 @@ export interface IGDatabase {
     getPendingWalletByPhoneAndConfirmationCode(phone, phoneConfirmationCode): Promise<IGPendingWallet>;
 
     addWallet(wallet): Promise<IGWallet>;
+    getWalletCount(): Promise<number>;
     getWallet(id): Promise<IGWallet>;
     getWalletByEmail(email): Promise<IGWallet>;
     getWalletByField(fieldName, fieldValue): Promise<IGWallet>;
