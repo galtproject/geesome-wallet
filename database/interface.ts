@@ -14,6 +14,10 @@ export interface IGDatabase {
 
     addPendingWallet(wallet): Promise<IGPendingWallet>;
     getPendingWallet(id): Promise<IGPendingWallet>;
+    updatePendingWallet(walletData): Promise<any>;
+
+    getPendingWalletByEmailAndConfirmationCode(email, emailConfirmationCode): Promise<IGPendingWallet>;
+    getPendingWalletByPhoneAndConfirmationCode(phone, phoneConfirmationCode): Promise<IGPendingWallet>;
 
     addWallet(wallet): Promise<IGWallet>;
     getWallet(id): Promise<IGWallet>;

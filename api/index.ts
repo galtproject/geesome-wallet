@@ -68,6 +68,13 @@ module.exports = (appService: IGAppService, port) => {
         res.send({pendingWallet});
     });
 
+    service.post('/v1/confirm-wallet', async (req, res) => {
+        setHeaders(req, res);
+        const wallet = await appService.confirmPendingWalletByCode(req.body.confirmationMethod, req.body.value, req.body.code);
+        await setSecret(req, wallet);
+        res.send({wallet});
+    });
+
     service.post('/v1/get-crypto-metadata-by-email', async (req, res) => {
         setHeaders(req, res);
         res.send(await appService.getCryptoMetadataByEmail(req.body.email));

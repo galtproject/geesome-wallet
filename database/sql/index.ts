@@ -70,6 +70,10 @@ class SqlDatabase implements IGDatabase {
         return this.models.PendingWallet.findOne({ where: { id: walletId }});
     }
 
+    async updatePendingWallet(walletData) {
+        return this.models.PendingWallet.update(walletData, { where: { id: walletData.id } });
+    }
+
     async getPendingWalletByEmailAndConfirmationCode(email, emailConfirmationCode) {
         email = email.toLowerCase();
         return this.models.PendingWallet.findOne({ where: { email, emailConfirmationCode }});
