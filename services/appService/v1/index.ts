@@ -10,17 +10,9 @@
 import {IGDatabase} from "../../../database/interface";
 const ethereumAuthorization = require('../../authorization/ethereum');
 
-// const utils = require('../../../utils');
 const _ = require('lodash');
 const pIteration = require('p-iteration');
-//
-// const axios = require("axios");
-// const uuidv4 = require('uuid/v4');
-//
-// const pIteration = require('p-iteration');
-// const uuidAPIKey = require('uuid-apikey');
-// const crypto = require("crypto");
-// const bip39 = require('bip39');
+const helpers = require('./helpers');
 
 module.exports = async (database, sentry) => {
     return new IGAppService(database, sentry);
@@ -46,6 +38,10 @@ class IGAppService {
     createPendingWallet(walletData, updateWalletId = null) {
         walletData.updateWalletId = updateWalletId;
         walletData.expiredOn = new Date(new Date().getTime() + 1000 * 60 * 60);
+        if (walletData.email) {
+            walletData.emailConfirmationCode = Math.round(Math.random() * 10 ** 6);
+            helpers.sendEmail(walletData.email, 'Confirmation code', walletData.emailConfirmationCode.toString());
+        }
         return this.database.addPendingWallet(walletData);
     }
 
@@ -86,7 +82,12 @@ class IGAppService {
             });
             return this.database.getWallet(pendingWallet.updateWalletId);
         } else {
-            return this.database.addWallet(resultWalletData);
+            const wallet = await this.database.addWallet(resultWalletData);
+            await this.database.updatePendingWallet({
+                id: pendingWallet.updateWalletId,
+                updateWalletId: wallet.id
+            });
+            return wallet;
         }
     }
 
@@ -103,6 +104,21 @@ class IGAppService {
         }
 
         return this.createOrUpdateWalletByPendingWallet(pendingWalletId, confirmMethods);
+    }
+
+    async confirmPendingWalletByCode(confirmationMethod, value, code) {
+        let pendingWallet;
+        if(confirmationMethod === 'email') {
+            pendingWallet = await this.database.getPendingWalletByEmailAndConfirmationCode(value, code);
+        } else if(confirmationMethod === 'phone') {
+            pendingWallet = await this.database.getPendingWalletByPhoneAndConfirmationCode(value, code);
+        } else {
+            throw new Error("failed");
+        }
+        if(!pendingWallet) {
+            throw new Error("failed");
+        }
+        return this.createOrUpdateWalletByPendingWallet(pendingWallet.id, [confirmationMethod]);
     }
 
     createWallet(walletData) {

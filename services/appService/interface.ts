@@ -35,4 +35,6 @@ export interface IGAppService {
     setAdminsAddresses(adminsAddresses: string[]);
 
     confirmPendingWalletByAdmin(signature, pendingWalletId, confirmMethods?);
+
+    confirmPendingWalletByCode(confirmationMethod, value, code);
 }
