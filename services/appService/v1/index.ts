@@ -94,20 +94,24 @@ class IGAppService {
             });
         }
 
+        let wallet;
+
         if(pendingWallet.updateWalletId) {
             await this.database.updateWallet({
                 id: pendingWallet.updateWalletId,
                 ...resultWalletData
             });
-            return this.database.getWallet(pendingWallet.updateWalletId);
+            wallet = await this.database.getWallet(pendingWallet.updateWalletId);
         } else {
-            const wallet = await this.database.addWallet(resultWalletData);
+            wallet = await this.database.addWallet(resultWalletData);
             await this.database.updatePendingWallet({
                 id: pendingWalletId,
                 updateWalletId: wallet.id
             });
-            return wallet;
         }
+        delete pendingWallet.emailConfirmationCode;
+        delete pendingWallet.phoneConfirmationCode;
+        return {wallet, pendingWallet};
     }
 
     async confirmPendingWalletByAdmin(signature, pendingWalletId, confirmMethods = []) {
