@@ -24,6 +24,8 @@ const smsc = {
     })).then(res => {
       console.log('smsc send', res.data);
       return res.data;
+    }).catch(err => {
+      console.error('smsc send error', err);
     });
   }
 };
