@@ -98,10 +98,11 @@ class IGAppService {
 
         if(pendingWallet.updateWalletId) {
             await this.database.updateWallet({
-                id: pendingWallet.updateWalletId,
-                ...resultWalletData
+                ...resultWalletData,
+                id: pendingWallet.updateWalletId
             });
             wallet = await this.database.getWallet(pendingWallet.updateWalletId);
+            console.log('database.getWallet', pendingWallet.updateWalletId, wallet);
         } else {
             wallet = await this.database.addWallet(resultWalletData);
             await this.database.updatePendingWallet({
