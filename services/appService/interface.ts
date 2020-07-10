@@ -39,4 +39,6 @@ export interface IGAppService {
     confirmPendingWalletByAdmin(signature, pendingWalletId, confirmMethods?);
 
     confirmPendingWalletByCode(confirmationMethod, value, code);
+
+    resendConfirmationCode(confirmationMethod, pendingWalletId);
 }
