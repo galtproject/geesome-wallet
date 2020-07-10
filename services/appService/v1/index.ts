@@ -166,14 +166,17 @@ class IGAppService {
         return JSON.parse(wallet.cryptoMetadataJson);
     }
 
-    async getCryptoMetadataByUsername(phone) {
-        if(!phone) {
+    async getCryptoMetadataByUsername(username) {
+        console.log('getCryptoMetadataByUsername', username);
+        if(!username) {
             return null;
         }
-        const wallet = await this.database.getWalletByField('username', phone);
+        const wallet = await this.database.getWalletByField('username', username);
+        console.log('wallet', wallet);
         if(!wallet) {
             return null;
         }
+        console.log('wallet.cryptoMetadataJson', wallet.cryptoMetadataJson);
         return JSON.parse(wallet.cryptoMetadataJson);
     }
 
