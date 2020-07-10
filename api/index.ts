@@ -72,9 +72,9 @@ module.exports = (appService: IGAppService, port) => {
     service.post('/v1/confirm-wallet', async (req, res) => {
         setHeaders(req, res);
         //TODO: restrict requests count
-        const wallet = await appService.confirmPendingWalletByCode(req.body.confirmationMethod, req.body.value, req.body.code);
+        const {wallet, pendingWallet} = await appService.confirmPendingWalletByCode(req.body.confirmationMethod, req.body.value, req.body.code);
         await setSecret(req, wallet);
-        res.send({wallet});
+        res.send({wallet, pendingWallet});
     });
 
     service.post('/v1/get-crypto-metadata-by-email', async (req, res) => {
