@@ -64,6 +64,7 @@ module.exports = (appService: IGAppService, port) => {
 
     service.post('/v1/register', async (req, res) => {
         setHeaders(req, res);
+        //TODO: restrict requests count
         const {wallet, pendingWallet} = await appService.register(req.body);
         await setSession(req, wallet, pendingWallet);
         res.send({wallet, pendingWallet});
@@ -71,8 +72,7 @@ module.exports = (appService: IGAppService, port) => {
 
     service.post('/v1/confirm-wallet', async (req, res) => {
         setHeaders(req, res);
-        //TODO: restrict requests count
-        const {wallet, pendingWallet} = await appService.confirmPendingWalletByCode(req.body.confirmationMethod, req.body.value, req.body.code);
+        const {wallet, pendingWallet} = await appService.confirmPendingWalletByCode(req.session.pendingWalletId, req.body.confirmationMethod, req.body.value, req.body.code);
         await setSession(req, wallet);
         res.send({wallet, pendingWallet});
     });
@@ -114,6 +114,18 @@ module.exports = (appService: IGAppService, port) => {
     service.post('/v1/get-wallet-by-username-and-password-hash', async (req, res) => {
         setHeaders(req, res);
         const wallet = await appService.getWalletByUsernameAndPasswordHash(req.body.username, req.body.usernamePasswordHash);
+        await setSession(req, wallet);
+        res.send(wallet);
+    });
+
+    service.post('/v1/get-auth-message', async (req, res) => {
+        setHeaders(req, res);
+        res.send(await appService.getAuthMessage(req.body.primaryAddress));
+    });
+
+    service.post('/v1/get-wallet-by-signature', async (req, res) => {
+        setHeaders(req, res);
+        const wallet = await appService.getWalletBySignature(req.body.primaryAddress, req.body.signature);
         await setSession(req, wallet);
         res.send(wallet);
     });

@@ -14,6 +14,7 @@ const _ = require('lodash');
 const pIteration = require('p-iteration');
 const unisender = require('./unisender');
 const smsc = require('./smsc');
+const uuidv4 = require('uuid/v4');
 
 module.exports = async (database, sentry) => {
     return new IGAppService(database, sentry);
@@ -133,7 +134,7 @@ class IGAppService {
         return this.createOrUpdateWalletByPendingWallet(pendingWalletId, confirmMethods);
     }
 
-    async confirmPendingWalletByCode(confirmationMethod, value, code) {
+    async confirmPendingWalletByCode(pendingWalletId, confirmationMethod, value, code) {
         let pendingWallet;
         if(confirmationMethod === 'email') {
             pendingWallet = await this.database.getPendingWalletByEmailAndConfirmationCode(value, code);
@@ -141,6 +142,9 @@ class IGAppService {
             pendingWallet = await this.database.getPendingWalletByPhoneAndConfirmationCode(value, code);
         } else {
             throw new Error("unknown_method");
+        }
+        if(pendingWallet.id !== pendingWalletId) {
+            throw new Error("failed");
         }
         if(!pendingWallet) {
             throw new Error("failed");
@@ -237,6 +241,38 @@ class IGAppService {
     }
 
     async getWalletByPrimaryAddress(primaryAddress) {
+        return this.database.getWalletByPrimaryAddress(primaryAddress);
+    }
+
+    async getAuthMessage(primaryAddress) {
+        primaryAddress = primaryAddress.toLowerCase();
+        const authMessage = await this.database.getLastAuthMessageByPrimaryAddress(primaryAddress);
+        if(authMessage && new Date(authMessage.expiredOn) > new Date()) {
+            return authMessage;
+        }
+        const wallet = await this.database.getWalletByPrimaryAddress(primaryAddress);
+        if(!wallet) {
+            throw new Error("wallet_not_found");
+        }
+        return this.database.addAuthMessage({
+            primaryAddress,
+            code: uuidv4(),
+            expiredOn: new Date(new Date().getTime() + 60 * 5 * 1000)
+        })
+    }
+
+    async getWalletBySignature(primaryAddress, signature) {
+        const authMessage = await this.database.getLastAuthMessageByPrimaryAddress(primaryAddress);
+        const messageParams = [
+            { type: 'string', name: 'code', value: authMessage.code}
+        ];
+        const isValid = ethereumAuthorization.isSignatureValid(primaryAddress, signature, messageParams);
+        if (!isValid) {
+            throw new Error("not_valid");
+        }
+        if(new Date() > new Date(authMessage.expiredOn)) {
+            throw new Error("expired");
+        }
         return this.database.getWalletByPrimaryAddress(primaryAddress);
     }
 

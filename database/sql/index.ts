@@ -134,4 +134,16 @@ class SqlDatabase implements IGDatabase {
         });
         return this.models.Wallet.update(walletData, { where: { id: walletData.id } });
     }
+
+    async addAuthMessage(messageData) {
+        return this.models.AuthMessage.create(messageData);
+    }
+
+    async getLastAuthMessageByPrimaryAddress(primaryAddress) {
+        primaryAddress = primaryAddress.toLowerCase();
+        return this.models.AuthMessage.findOne({
+            order: [['createdAt', 'DESC']],
+            where: {primaryAddress}
+        });
+    }
 }

@@ -30,6 +30,8 @@ export interface IGDatabase {
     getWalletByUsernameAndPasswordHash(username, phonePasswordHash): Promise<IGWallet>;
     getWalletByPrimaryAddress(primaryAddress): Promise<IGWallet>;
 
+    addAuthMessage(messageData): Promise<IGAuthMessage>;
+    getLastAuthMessageByPrimaryAddress(primaryAddress): Promise<IGAuthMessage>;
 
     updateWallet(walletData): Promise<any>;
 }
@@ -66,4 +68,11 @@ export interface IGWallet {
     phoneEncryptedSeed;
     usernameEncryptedSeed;
     cryptoMetadataJson;
+}
+
+export interface IGAuthMessage {
+    id;
+    primaryAddress;
+    code;
+    expiredOn;
 }
