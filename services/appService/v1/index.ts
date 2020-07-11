@@ -143,6 +143,8 @@ class IGAppService {
         } else {
             throw new Error("unknown_method");
         }
+        console.log('pendingWalletId', pendingWalletId);
+        console.log('pendingWallet.id', pendingWallet.id);
         if(pendingWallet.id !== pendingWalletId) {
             throw new Error("failed");
         }
