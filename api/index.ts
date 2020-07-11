@@ -66,6 +66,7 @@ module.exports = (appService: IGAppService, port) => {
         setHeaders(req, res);
         //TODO: restrict requests count
         const {wallet, pendingWallet} = await appService.register(req.body);
+        console.log('pendingWallet', pendingWallet);
         await setSession(req, wallet, pendingWallet);
         res.send({wallet, pendingWallet});
     });
