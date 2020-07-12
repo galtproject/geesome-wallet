@@ -51,13 +51,13 @@ class IGAppService {
         walletData.updateWalletId = updateWalletId;
         walletData.expiredOn = new Date(new Date().getTime() + 1000 * 60 * 60);
         if (walletData.email) {
-            walletData.emailConfirmationCode = Math.round(Math.random() * 10 ** 6);
+            walletData.emailConfirmationCode = this.getRandomCode();
             walletData.emailConfirmationSentAt = new Date();
             walletData.emailConfirmationSentCount = 1;
             unisender.sendEmail(walletData.email, 'Confirmation code', walletData.emailConfirmationCode.toString());
         }
         if (walletData.phone) {
-            walletData.phoneConfirmationCode = Math.round(Math.random() * 10 ** 6);
+            walletData.phoneConfirmationCode = this.getRandomCode();
             walletData.phoneConfirmationSentAt = new Date();
             walletData.phoneConfirmationSentCount = 1;
             smsc.send([walletData.phone], walletData.phoneConfirmationCode.toString());
@@ -170,10 +170,10 @@ class IGAppService {
         }
         let updateData: any = {};
         if(confirmationMethod === 'email') {
-            updateData.emailConfirmationCode = Math.round(Math.random() * 10 ** 6);
+            updateData.emailConfirmationCode = this.getRandomCode();
             unisender.sendEmail(pendingWallet.email, 'Confirmation code', updateData.emailConfirmationCode.toString());
         } else if(confirmationMethod === 'phone') {
-            updateData.phoneConfirmationCode = Math.round(Math.random() * 10 ** 6);
+            updateData.phoneConfirmationCode = this.getRandomCode();
             smsc.send([pendingWallet.phone], updateData.phoneConfirmationCode.toString());
         } else {
             throw new Error("unknown_method");
@@ -188,6 +188,10 @@ class IGAppService {
         delete pendingWallet.emailConfirmationCode;
         delete pendingWallet.phoneConfirmationCode;
         return {pendingWallet}
+    }
+
+    getRandomCode() {
+        return Math.floor(Math.random() * 899999 + 100000);
     }
 
     createWallet(walletData) {
