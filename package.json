@@ -48,7 +48,7 @@
     "@types/node": "^13.1.6",
     "chai": "^4.2.0",
     "chai-http": "^4.2.1",
-    "geesome-wallet-client": "git+ssh://git@github.com/galtproject/geesome-wallet-client.git#6d6bec4",
+    "geesome-wallet-client": "git+ssh://git@github.com/galtproject/geesome-wallet-client.git#fe5ad28",
     "mocha": "^5.2.0",
     "ts-node": "^7.0.1",
     "typings": "^2.1.1"

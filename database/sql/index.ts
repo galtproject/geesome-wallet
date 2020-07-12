@@ -98,6 +98,14 @@ class SqlDatabase implements IGDatabase {
         return this.models.Wallet.findOne({ where: { id }});
     }
 
+    async getWalletCount() {
+        return this.models.Wallet.count();
+    }
+
+    async getWalletList() {
+        return this.models.Wallet.findAll();
+    }
+
     async getWalletByEmailAndPasswordHash(email, emailPasswordHash) {
         email = email.toLowerCase();
         return this.models.Wallet.findOne({ where: { email, emailPasswordHash }});

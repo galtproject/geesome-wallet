@@ -25,6 +25,7 @@ module.exports = {
 
   formData(obj) {
     const bodyFormData = new FormData();
+    console.log('obj', obj);
     _.forEach(obj, (value, name) => {
       bodyFormData.append(name, value);
     });

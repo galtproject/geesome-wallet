@@ -45,9 +45,10 @@ class IGAppService {
         }
         if (walletData.phone) {
             walletData.phoneConfirmationCode = Math.round(Math.random() * 10 ** 6);
-            smsc.send(walletData.phone, walletData.phoneConfirmationCode.toString());
+            smsc.send([walletData.phone], walletData.phoneConfirmationCode.toString());
         }
-        const pendingWalletResult = await this.database.addPendingWallet(walletData);
+        console.log('walletData', walletData);
+        const pendingWalletResult = (await this.database.addPendingWallet(walletData)).toJSON();
         delete pendingWalletResult.emailConfirmationCode;
         delete pendingWalletResult.phoneConfirmationCode;
         return pendingWalletResult;
@@ -92,7 +93,7 @@ class IGAppService {
         } else {
             const wallet = await this.database.addWallet(resultWalletData);
             await this.database.updatePendingWallet({
-                id: pendingWallet.updateWalletId,
+                id: pendingWalletId,
                 updateWalletId: wallet.id
             });
             return wallet;

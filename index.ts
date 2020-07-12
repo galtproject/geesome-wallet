@@ -12,7 +12,6 @@ import {IGAppService} from "./services/appService/interface";
 
 const config = require('./config.ts');
 const fs = require('fs');
-const unisender = require('./services/appService/v1/unisender');
 
 (async() => {
     const databaseConfig: any = {};
@@ -27,6 +26,9 @@ const unisender = require('./services/appService/v1/unisender');
     if(fs.existsSync('./admins.json')) {
         appService.setAdminsAddresses(require('./admins.json'));
     }
+
+    // console.log('database.getWalletCount', await database.getWalletCount());
+    // console.log('database.getWalletList', await database.getWalletList());
 
     const server = await require('./api/')(appService, process.env.API_PORT || config.apiPort);
 
