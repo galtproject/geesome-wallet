@@ -10,6 +10,7 @@
 module.exports = async function(sequelize) {
     const models: any = {};
 
+    models.AuthMessage = await require('./authMessage')(sequelize, models);
     models.Wallet = await require('./wallet')(sequelize, models);
     models.PendingWallet = await require('./pendingWallet')(sequelize, models);
 

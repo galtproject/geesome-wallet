@@ -170,7 +170,7 @@ describe("databaseValues", function () {
                 cryptoMetadataJson: JSON.stringify(cryptoMetadata)
             });
 
-            // Phone
+            // Username
             const gotCryptoMetadataUsername = await appService.getCryptoMetadataByUsername(username.toUpperCase());
 
             const gotPasswordDerivedKey = lib.getPasswordDerivedKey(password, username.toUpperCase(), gotCryptoMetadataUsername.iterations, gotCryptoMetadataUsername.kdf);
@@ -187,6 +187,65 @@ describe("databaseValues", function () {
             const gotEthereumWallet = lib.getKeypairByMnemonic(gotSeed, 0, gotCryptoMetadataUsername.derivationPath);
             assert.equal(ethereumWallet.address, gotEthereumWallet.address);
             assert.equal(ethereumWallet.privateKey, gotEthereumWallet.privateKey);
+
+            done();
+        })()
+    });
+
+    it("should login by signature correctly", (done) => {
+        (async () => {
+            let database = await require('../database/sql')(databaseConfig);
+            const appService: IGAppService = await require('../services/appService/v1')(database, null);
+
+            const cryptoMetadata = lib.getDefaultCryptoMetadata();
+            const { derivationPath } = cryptoMetadata;
+
+            const seed = lib.generateMnemonic();
+            const ethereumWallet = lib.getKeypairByMnemonic(seed, 0, derivationPath);
+
+            const password = 'my-password-123';
+            const username = 'my-username-3';
+
+            const passwordDerivedKey = lib.getPasswordDerivedKey(password, username, cryptoMetadata.iterations, cryptoMetadata.kdf);
+
+            const usernameEncryptedSeed = lib.encrypt(passwordDerivedKey, seed, cryptoMetadata.cryptoCounter);
+
+            const usernamePasswordHash = lib.getPasswordHash(passwordDerivedKey, password);
+
+            await appService.createWallet({
+                username,
+                usernamePasswordHash,
+                usernameEncryptedSeed,
+                primaryAddress: ethereumWallet.address,
+                cryptoMetadataJson: JSON.stringify(cryptoMetadata)
+            });
+
+            try {
+                await appService.getAuthMessage(adminWallet.address);
+                assert.equal(true, false);
+            } catch (e) {
+                assert.equal(e.message, "wallet_not_found");
+            }
+
+            const authMessage = await appService.getAuthMessage(ethereumWallet.address);
+
+            const incorrectSignature = lib.signMessage(adminWallet.privateKey, [
+                { type: 'string', name: 'code', value: authMessage.code}
+            ]);
+            try {
+                await appService.getWalletBySignature(ethereumWallet.address, incorrectSignature);
+                assert.equal(true, false);
+            } catch (e) {
+                assert.equal(e.message, "not_valid");
+            }
+
+            const signature = lib.signMessage(ethereumWallet.privateKey, [
+                { type: 'string', name: 'code', value: authMessage.code}
+            ]);
+
+            const gotWallet = await appService.getWalletBySignature(ethereumWallet.address, signature);
+
+            assert.equal(gotWallet.username, username);
 
             done();
         })()
