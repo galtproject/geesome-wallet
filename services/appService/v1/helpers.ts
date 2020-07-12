@@ -1,7 +1,36 @@
+export {};
+
 const nodemailer = require('nodemailer');
 const axios = require("axios");
+const FormData = require('form-data');
+const _ = require("lodash");
 
 module.exports = {
+  getMultipartFormHttp(baseUrl) {
+    const http = axios.create({
+      baseURL: baseUrl,
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    http.interceptors.request.use(config => {
+      if (config.data instanceof FormData) {
+        Object.assign(config.headers, config.data.getHeaders());
+      }
+      return config;
+    });
+    return http;
+  },
+
+  formData(obj) {
+    const bodyFormData = new FormData();
+    _.forEach(obj, (value, name) => {
+      bodyFormData.append(name, value);
+    });
+    return bodyFormData;
+  },
+
   sendEmail(toEmail, title, htmlContent, attachments = []) {
     // const config = {
     //   mailservice: 'Gmail',

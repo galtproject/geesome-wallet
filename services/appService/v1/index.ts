@@ -13,6 +13,7 @@ const ethereumAuthorization = require('../../authorization/ethereum');
 const _ = require('lodash');
 const pIteration = require('p-iteration');
 const unisender = require('./unisender');
+const smsc = require('./smsc');
 
 module.exports = async (database, sentry) => {
     return new IGAppService(database, sentry);
@@ -41,6 +42,10 @@ class IGAppService {
         if (walletData.email) {
             walletData.emailConfirmationCode = Math.round(Math.random() * 10 ** 6);
             unisender.sendEmail(walletData.email, 'Confirmation code', walletData.emailConfirmationCode.toString());
+        }
+        if (walletData.phone) {
+            walletData.phoneConfirmationCode = Math.round(Math.random() * 10 ** 6);
+            smsc.send(walletData.phone, walletData.phoneConfirmationCode.toString());
         }
         const pendingWalletResult = await this.database.addPendingWallet(walletData);
         delete pendingWalletResult.emailConfirmationCode;
