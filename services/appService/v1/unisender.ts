@@ -43,6 +43,8 @@ const unisender = {
     })).then(res => {
       console.log('unisender sendEmail', res.data.result);
       return res.data.result;
+    }).catch(err => {
+      console.error('unisender sendEmail error', err);
     });
   }
 };

@@ -62,27 +62,19 @@ module.exports = (appService: IGAppService, port) => {
         });
     }
 
-    //TODO: deprecated, delete
-    service.post('/v1/create-wallet', async (req, res) => {
-        setHeaders(req, res);
-        const wallet = await appService.createWallet(req.body);
-        await setSecret(req, wallet);
-        res.send(wallet);
-    });
-
     service.post('/v1/register', async (req, res) => {
         setHeaders(req, res);
-        const pendingWallet = await appService.createPendingWallet(req.body);
-        await setSecret(req, null, pendingWallet);
-        res.send({pendingWallet});
+        const {wallet, pendingWallet} = await appService.register(req.body);
+        await setSecret(req, wallet, pendingWallet);
+        res.send({wallet, pendingWallet});
     });
 
     service.post('/v1/confirm-wallet', async (req, res) => {
         setHeaders(req, res);
         //TODO: restrict requests count
-        const wallet = await appService.confirmPendingWalletByCode(req.body.confirmationMethod, req.body.value, req.body.code);
+        const {wallet, pendingWallet} = await appService.confirmPendingWalletByCode(req.body.confirmationMethod, req.body.value, req.body.code);
         await setSecret(req, wallet);
-        res.send({wallet});
+        res.send({wallet, pendingWallet});
     });
 
     service.post('/v1/get-crypto-metadata-by-email', async (req, res) => {
@@ -97,7 +89,7 @@ module.exports = (appService: IGAppService, port) => {
 
     service.post('/v1/get-crypto-metadata-by-username', async (req, res) => {
         setHeaders(req, res);
-        res.send(await appService.getCryptoMetadataByPhone(req.body.username));
+        res.send(await appService.getCryptoMetadataByUsername(req.body.username));
     });
 
     service.post('/v1/get-wallet-by-email-and-password-hash', async (req, res) => {

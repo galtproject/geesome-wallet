@@ -36,6 +36,16 @@ class IGAppService {
         this.adminsAddresses = adminsAddresses;
     }
 
+    async register(walletData) {
+        if(walletData.email || walletData.phone) {
+            const pendingWallet = await this.createPendingWallet(walletData);
+            return {pendingWallet};
+        } else {
+            const wallet = await this.createWallet(walletData);
+            return {wallet};
+        }
+    }
+
     async createPendingWallet(walletData, updateWalletId = null) {
         walletData.updateWalletId = updateWalletId;
         walletData.expiredOn = new Date(new Date().getTime() + 1000 * 60 * 60);
@@ -84,20 +94,24 @@ class IGAppService {
             });
         }
 
+        let wallet;
+
         if(pendingWallet.updateWalletId) {
             await this.database.updateWallet({
-                id: pendingWallet.updateWalletId,
-                ...resultWalletData
+                ...resultWalletData,
+                id: pendingWallet.updateWalletId
             });
-            return this.database.getWallet(pendingWallet.updateWalletId);
+            wallet = await this.database.getWallet(pendingWallet.updateWalletId);
         } else {
-            const wallet = await this.database.addWallet(resultWalletData);
+            wallet = await this.database.addWallet(resultWalletData);
             await this.database.updatePendingWallet({
                 id: pendingWalletId,
                 updateWalletId: wallet.id
             });
-            return wallet;
         }
+        delete pendingWallet.emailConfirmationCode;
+        delete pendingWallet.phoneConfirmationCode;
+        return {wallet, pendingWallet};
     }
 
     async confirmPendingWalletByAdmin(signature, pendingWalletId, confirmMethods = []) {
@@ -156,14 +170,17 @@ class IGAppService {
         return JSON.parse(wallet.cryptoMetadataJson);
     }
 
-    async getCryptoMetadataByUsername(phone) {
-        if(!phone) {
+    async getCryptoMetadataByUsername(username) {
+        console.log('getCryptoMetadataByUsername', username);
+        if(!username) {
             return null;
         }
-        const wallet = await this.database.getWalletByField('username', phone);
+        const wallet = await this.database.getWalletByField('username', username);
+        console.log('wallet', wallet);
         if(!wallet) {
             return null;
         }
+        console.log('wallet.cryptoMetadataJson', wallet.cryptoMetadataJson);
         return JSON.parse(wallet.cryptoMetadataJson);
     }
 
@@ -237,7 +254,7 @@ class IGAppService {
         }
 
         return {
-            wallet: await this.database.getWallet(walletData.id),
+            wallet: await this.database.getWallet(wallet.id),
             pendingWallet
         }
     }
