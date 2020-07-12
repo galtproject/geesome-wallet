@@ -62,6 +62,23 @@ module.exports = (appService: IGAppService, port) => {
         });
     }
 
+    // GETTERS
+    service.post('/v1/get-crypto-metadata-by-email', async (req, res) => {
+        setHeaders(req, res);
+        res.send(await appService.getCryptoMetadataByEmail(req.body.email));
+    });
+
+    service.post('/v1/get-crypto-metadata-by-phone', async (req, res) => {
+        setHeaders(req, res);
+        res.send(await appService.getCryptoMetadataByPhone(req.body.phone));
+    });
+
+    service.post('/v1/get-crypto-metadata-by-username', async (req, res) => {
+        setHeaders(req, res);
+        res.send(await appService.getCryptoMetadataByUsername(req.body.username));
+    });
+
+    // AUTHENTICATE
     service.post('/v1/register', async (req, res) => {
         setHeaders(req, res);
         //TODO: restrict requests count
@@ -80,21 +97,6 @@ module.exports = (appService: IGAppService, port) => {
     service.post('/v1/resend-confirmation', async (req, res) => {
         setHeaders(req, res);
         res.send(await appService.resendConfirmationCode(req.body.confirmationMethod, req.session.pendingWalletId));
-    });
-
-    service.post('/v1/get-crypto-metadata-by-email', async (req, res) => {
-        setHeaders(req, res);
-        res.send(await appService.getCryptoMetadataByEmail(req.body.email));
-    });
-
-    service.post('/v1/get-crypto-metadata-by-phone', async (req, res) => {
-        setHeaders(req, res);
-        res.send(await appService.getCryptoMetadataByPhone(req.body.phone));
-    });
-
-    service.post('/v1/get-crypto-metadata-by-username', async (req, res) => {
-        setHeaders(req, res);
-        res.send(await appService.getCryptoMetadataByUsername(req.body.username));
     });
 
     service.post('/v1/get-wallet-by-email-and-password-hash', async (req, res) => {
@@ -130,6 +132,12 @@ module.exports = (appService: IGAppService, port) => {
         res.send(wallet);
     });
 
+    service.post('/v1/get-session', async (req, res) => {
+        setHeaders(req, res);
+        res.send({secret: req.session.secret, wallet: req.session.walletId ? await appService.database.getWallet(req.session.walletId) : null});
+    });
+
+    // WALLET CONTROL
     service.post('/v1/update-wallet', async (req, res) => {
         setHeaders(req, res);
         const {wallet, pendingWallet} = await appService.updateWallet(req.body.primaryAddress, req.body.signature, req.body.walletData, req.body.expiredOn);
@@ -137,17 +145,19 @@ module.exports = (appService: IGAppService, port) => {
         res.send({wallet, pendingWallet});
     });
 
-    service.post('/v1/get-session', async (req, res) => {
+    service.post('/v1/delete-wallet', async (req, res) => {
         setHeaders(req, res);
-        res.send({secret: req.session.secret, wallet: req.session.walletId ? await appService.database.getWallet(req.session.walletId) : null});
+        res.send({result: await appService.deleteWallet(req.session.walletId, req.body.signature)});
     });
 
+    // ADMIN INTERFACE
     service.post('/v1/admin/confirm-wallet', async (req, res) => {
         setHeaders(req, res);
         const wallet = await appService.confirmPendingWalletByAdmin(req.body.signature, req.body.pendingWalletId, req.body.confirmMethods);
         res.send(wallet);
     });
 
+    // COORS
     service.options("/*", function (req, res, next) {
         setHeaders(req, res);
         res.send(200);

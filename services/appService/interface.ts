@@ -45,4 +45,6 @@ export interface IGAppService {
     confirmPendingWalletByCode(pendingWalletId, confirmationMethod, value, code);
 
     resendConfirmationCode(confirmationMethod, pendingWalletId);
+
+    deleteWallet(walletId, signature): Promise<any>;
 }

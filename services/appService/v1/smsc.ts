@@ -16,6 +16,10 @@ const psw = process.env.SMSC_PASSWORD;
 
 const smsc = {
   send(phones, mes) {
+    if(!login || !psw) {
+      console.warn("Smsc login or psw does not set");
+      return false;
+    }
     return http.post('send.php', formData({
       login,
       psw,

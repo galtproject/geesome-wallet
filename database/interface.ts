@@ -34,6 +34,8 @@ export interface IGDatabase {
     getLastAuthMessageByPrimaryAddress(primaryAddress): Promise<IGAuthMessage>;
 
     updateWallet(walletData): Promise<any>;
+
+    destroyWallet(id): Promise<any>;
 }
 
 export interface IGPendingWallet {

@@ -50,6 +50,7 @@ describe("databaseValues", function () {
             });
 
             const confirmPendingWalletMessage = [
+                { type: 'string', name: 'project', value: 'GeesomeWallet'},
                 { type: 'string', name: 'action', value: 'confirmPendingWallet'},
                 { type: 'string', name: 'pendingWalletId', value: pendingWallet.id.toString()},
                 { type: 'string', name: 'confirmMethods', value: ['email']}
@@ -240,6 +241,8 @@ describe("databaseValues", function () {
             }
 
             const signature = lib.signMessage(ethereumWallet.privateKey, [
+                { type: 'string', name: 'project', value: 'GeesomeWallet'},
+                { type: 'string', name: 'action', value: 'getWallet'},
                 { type: 'string', name: 'code', value: authMessage.code}
             ]);
 
@@ -288,6 +291,7 @@ describe("databaseValues", function () {
 
             const expiredOn = Math.round(new Date().getTime() / 1000) + 60 * 5;
             const messageParams = [
+                { type: 'string', name: 'project', value: 'GeesomeWallet'},
                 { type: 'string', name: 'action', value: 'updateWallet'},
                 { type: 'string', name: 'walletData', value: JSON.stringify(updateData)},
                 { type: 'string', name: 'expiredOn', value: expiredOn.toString()}
@@ -298,6 +302,7 @@ describe("databaseValues", function () {
 
             const {pendingWallet} = await appService.updateWallet(ethereumWallet.address, signature, updateData, expiredOn);
             const confirmPendingWalletMessage = [
+                { type: 'string', name: 'project', value: 'GeesomeWallet'},
                 { type: 'string', name: 'action', value: 'confirmPendingWallet'},
                 { type: 'string', name: 'pendingWalletId', value: pendingWallet.id.toString()},
                 { type: 'string', name: 'confirmMethods', value: ['email', 'phone']}
@@ -321,6 +326,62 @@ describe("databaseValues", function () {
             } catch (e) {
                 assert.equal(e.message.indexOf('not_valid') > -1, true);
             }
+            done();
+        })()
+    });
+
+    it("should deleteWallet correctly", (done) => {
+        (async () => {
+            let database = await require('../database/sql')(databaseConfig);
+            const appService: IGAppService = await require('../services/appService/v1')(database, null);
+            appService.setAdminsAddresses([adminWallet.address]);
+
+            const cryptoMetadata = lib.getDefaultCryptoMetadata();
+            const { derivationPath } = cryptoMetadata;
+
+            const seed = lib.generateMnemonic();
+            const ethereumWallet = lib.getKeypairByMnemonic(seed, 0, derivationPath);
+
+            const email = 'my1@email.com';
+            const password = 'my-password-123';
+
+            const passwordDerivedKey = lib.getPasswordDerivedKey(password, email, cryptoMetadata.iterations, cryptoMetadata.kdf);
+
+            const emailEncryptedSeed = lib.encrypt(passwordDerivedKey, seed, cryptoMetadata.cryptoCounter);
+
+            const emailPasswordHash = lib.getPasswordHash(passwordDerivedKey, password);
+
+            const resultWallet = await appService.createWallet({
+                email,
+                emailPasswordHash,
+                emailEncryptedSeed,
+                primaryAddress: ethereumWallet.address,
+                cryptoMetadataJson: JSON.stringify(cryptoMetadata)
+            });
+
+            const messageParams = [
+                { type: 'string', name: 'project', value: 'GeesomeWallet'},
+                { type: 'string', name: 'action', value: 'deleteWallet'},
+                { type: 'string', name: 'walletId', value: resultWallet.id.toString()}
+            ];
+
+            console.log('ethereumWallet.address', ethereumWallet.address);
+
+            const incorrectSignature = lib.signMessage(adminWallet.privateKey, messageParams);
+            try {
+                await appService.deleteWallet(resultWallet.id, incorrectSignature);
+                assert.equal(false, true);
+            } catch (e) {
+                assert.equal(e.message.indexOf('not_valid') > -1, true);
+            }
+
+            const signature = lib.signMessage(ethereumWallet.privateKey, messageParams);
+
+            await appService.deleteWallet(resultWallet.id, signature);
+
+            const gotWallet = await appService.getWalletByEmailAndPasswordHash(email, emailPasswordHash);
+            assert.equal(gotWallet, null);
+
             done();
         })()
     });

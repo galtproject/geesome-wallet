@@ -31,6 +31,10 @@ const unisender = {
   },
 
   sendEmail(emailTo, subject, htmlBody, listId = 2) {
+    if(!api_key || !sender_email) {
+      console.warn("Unisender api_key or sender_email does not set");
+      return false;
+    }
     return http.post('sendEmail', formData({
       format: 'json',
       sender_name: 'GaltProject',

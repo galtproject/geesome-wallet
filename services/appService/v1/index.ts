@@ -121,6 +121,7 @@ class IGAppService {
 
     async confirmPendingWalletByAdmin(signature, pendingWalletId, confirmMethods = []) {
         const messageParams = [
+            { type: 'string', name: 'project', value: 'GeesomeWallet'},
             { type: 'string', name: 'action', value: 'confirmPendingWallet'},
             { type: 'string', name: 'pendingWalletId', value: pendingWalletId.toString(10)},
             { type: 'string', name: 'confirmMethods', value: confirmMethods}
@@ -270,6 +271,8 @@ class IGAppService {
     async getWalletBySignature(primaryAddress, signature) {
         const authMessage = await this.database.getLastAuthMessageByPrimaryAddress(primaryAddress);
         const messageParams = [
+            { type: 'string', name: 'project', value: 'GeesomeWallet'},
+            { type: 'string', name: 'action', value: 'getWallet'},
             { type: 'string', name: 'code', value: authMessage.code}
         ];
         const isValid = ethereumAuthorization.isSignatureValid(primaryAddress, signature, messageParams);
@@ -285,6 +288,7 @@ class IGAppService {
     async updateWallet(primaryAddress, signature, walletData, expiredOn) {
         walletData = _.clone(walletData);
         const messageParams = [
+            { type: 'string', name: 'project', value: 'GeesomeWallet'},
             { type: 'string', name: 'action', value: 'updateWallet'},
             { type: 'string', name: 'walletData', value: JSON.stringify(walletData)},
             { type: 'string', name: 'expiredOn', value: expiredOn.toString()}
@@ -302,9 +306,6 @@ class IGAppService {
         if(!wallet) {
             throw new Error("not_found");
         }
-
-        console.log('wallet', wallet);
-        console.log('walletData', walletData);
 
         await pIteration.forEach(['email', 'phone', 'primaryAddress', 'username'], async (field) => {
             if(walletData[field] && walletData[field].toLowerCase() != (wallet[field] || '').toLowerCase()) {
@@ -339,5 +340,20 @@ class IGAppService {
             wallet: await this.database.getWallet(wallet.id),
             pendingWallet
         }
+    }
+
+    async deleteWallet(walletId, signature) {
+        const wallet = await this.database.getWallet(walletId);
+        const messageParams = [
+            { type: 'string', name: 'project', value: 'GeesomeWallet'},
+            { type: 'string', name: 'action', value: 'deleteWallet'},
+            { type: 'string', name: 'walletId', value: walletId.toString()}
+        ];
+        const isValid = ethereumAuthorization.isSignatureValid(wallet.primaryAddress, signature, messageParams);
+        if (!isValid) {
+            throw new Error("not_valid");
+        }
+
+        return this.database.destroyWallet(walletId);
     }
 }

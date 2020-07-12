@@ -146,4 +146,10 @@ class SqlDatabase implements IGDatabase {
             where: {primaryAddress}
         });
     }
+
+    destroyWallet(id) {
+        return this.models.Wallet.destroy({
+            where: {id}
+        });
+    }
 }
