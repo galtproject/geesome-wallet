@@ -21,11 +21,23 @@ module.exports = async function (sequelize, models) {
     phoneConfirmationCode: {
       type: Sequelize.STRING(200)
     },
+    phoneConfirmationSentAt: {
+      type: Sequelize.DATE
+    },
+    phoneConfirmationSentCount: {
+      type: Sequelize.INTEGER
+    },
     email: {
       type: Sequelize.STRING(200)
     },
     emailConfirmationCode: {
       type: Sequelize.STRING(200)
+    },
+    emailConfirmationSentAt: {
+      type: Sequelize.DATE
+    },
+    emailConfirmationSentCount: {
+      type: Sequelize.INTEGER
     },
     emailPasswordHash: {
       type: Sequelize.STRING(200)

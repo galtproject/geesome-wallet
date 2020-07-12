@@ -51,10 +51,14 @@ class IGAppService {
         walletData.expiredOn = new Date(new Date().getTime() + 1000 * 60 * 60);
         if (walletData.email) {
             walletData.emailConfirmationCode = Math.round(Math.random() * 10 ** 6);
+            walletData.emailConfirmationSentAt = new Date();
+            walletData.emailConfirmationSentCount = 1;
             unisender.sendEmail(walletData.email, 'Confirmation code', walletData.emailConfirmationCode.toString());
         }
         if (walletData.phone) {
             walletData.phoneConfirmationCode = Math.round(Math.random() * 10 ** 6);
+            walletData.phoneConfirmationSentAt = new Date();
+            walletData.phoneConfirmationSentCount = 1;
             smsc.send([walletData.phone], walletData.phoneConfirmationCode.toString());
         }
         console.log('walletData', walletData);
@@ -136,12 +140,48 @@ class IGAppService {
         } else if(confirmationMethod === 'phone') {
             pendingWallet = await this.database.getPendingWalletByPhoneAndConfirmationCode(value, code);
         } else {
-            throw new Error("failed");
+            throw new Error("unknown_method");
         }
         if(!pendingWallet) {
             throw new Error("failed");
         }
         return this.createOrUpdateWalletByPendingWallet(pendingWallet.id, [confirmationMethod]);
+    }
+
+    async resendConfirmationCode(confirmationMethod, pendingWalletId) {
+        if(!pendingWalletId) {
+            throw new Error("incorrect_input");
+        }
+        let pendingWallet = (await this.database.getPendingWallet(pendingWalletId)).toJSON();
+        if(!pendingWallet || !pendingWallet[confirmationMethod]) {
+            throw new Error("incorrect_input");
+        }
+        if(new Date(pendingWallet[confirmationMethod + 'ConfirmationSentAt']) > new Date(new Date().getTime() - 1000 * 60)) {
+            throw new Error("to_soon");
+        }
+        if(pendingWallet[confirmationMethod + 'ConfirmationSentCount'] > 3) {
+            throw new Error("to_many");
+        }
+        let updateData: any = {};
+        if(confirmationMethod === 'email') {
+            updateData.emailConfirmationCode = Math.round(Math.random() * 10 ** 6);
+            unisender.sendEmail(pendingWallet.email, 'Confirmation code', updateData.emailConfirmationCode.toString());
+        } else if(confirmationMethod === 'phone') {
+            updateData.phoneConfirmationCode = Math.round(Math.random() * 10 ** 6);
+            smsc.send([pendingWallet.phone], updateData.phoneConfirmationCode.toString());
+        } else {
+            throw new Error("unknown_method");
+        }
+        updateData[confirmationMethod + 'ConfirmationSentCount'] = pendingWallet[confirmationMethod + 'ConfirmationSentCount'] + 1;
+        updateData[confirmationMethod + 'ConfirmationSentAt'] = new Date();
+        await this.database.updatePendingWallet({
+            id: pendingWalletId,
+            ...updateData
+        });
+        pendingWallet = (await this.database.getPendingWallet(pendingWalletId)).toJSON();
+        delete pendingWallet.emailConfirmationCode;
+        delete pendingWallet.phoneConfirmationCode;
+        return {pendingWallet}
     }
 
     createWallet(walletData) {
