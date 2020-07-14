@@ -11,5 +11,6 @@ module.exports = {
     'database': 'sql',
     'appService': 'v1',
     'apiPort': 3344,
-    'chainEnv': 'local'
+    'chainEnv': 'local',
+    'adminAddresses': []
 };

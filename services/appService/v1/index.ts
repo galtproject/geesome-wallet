@@ -17,7 +17,11 @@ const smsc = require('./smsc');
 const uuidv4 = require('uuid/v4');
 
 module.exports = async (database, sentry) => {
-    return new IGAppService(database, sentry);
+    const app = new IGAppService(database, sentry);
+    if(process.env.ADMIN_ADDRESS) {
+        app.setAdminsAddresses([process.env.ADMIN_ADDRESS]);
+    }
+    return app;
 };
 
 class IGAppService {
