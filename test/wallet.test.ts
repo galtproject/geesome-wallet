@@ -330,7 +330,7 @@ describe("databaseValues", function () {
         })()
     });
 
-    it.only("should updateWallet correctly with username only", (done) => {
+    it("should updateWallet correctly with username only", (done) => {
         (async () => {
             let database = await require('../database/sql')(databaseConfig);
             const appService: IGAppService = await require('../services/appService/v1')(database, null);
