@@ -50,13 +50,13 @@ class IGAppService {
     async createPendingWallet(walletData, updateWalletId = null) {
         walletData.updateWalletId = updateWalletId;
         walletData.expiredOn = new Date(new Date().getTime() + 1000 * 60 * 60);
-        if (walletData.email) {
+        if (walletData.email && !walletData.skipEmailConfirmation) {
             walletData.emailConfirmationCode = this.getRandomCode();
             walletData.emailConfirmationSentAt = new Date();
             walletData.emailConfirmationSentCount = 1;
             unisender.sendEmail(walletData.email, 'Confirmation code', walletData.emailConfirmationCode.toString());
         }
-        if (walletData.phone) {
+        if (walletData.phone && !walletData.skipPhoneConfirmation) {
             walletData.phoneConfirmationCode = this.getRandomCode();
             walletData.phoneConfirmationSentAt = new Date();
             walletData.phoneConfirmationSentCount = 1;
