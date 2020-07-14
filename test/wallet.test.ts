@@ -330,6 +330,74 @@ describe("databaseValues", function () {
         })()
     });
 
+    it.only("should updateWallet correctly with username only", (done) => {
+        (async () => {
+            let database = await require('../database/sql')(databaseConfig);
+            const appService: IGAppService = await require('../services/appService/v1')(database, null);
+            appService.setAdminsAddresses([adminWallet.address]);
+
+            const cryptoMetadata = lib.getDefaultCryptoMetadata();
+            const { derivationPath } = cryptoMetadata;
+
+            const seed = lib.generateMnemonic();
+            const ethereumWallet = lib.getKeypairByMnemonic(seed, 0, derivationPath);
+
+            const password = 'my-password-123';
+            const username = 'test-username-40';
+
+            const passwordDerivedKey = lib.getPasswordDerivedKey(password, username, cryptoMetadata.iterations, cryptoMetadata.kdf);
+
+            const usernameEncryptedSeed = lib.encrypt(passwordDerivedKey, seed, cryptoMetadata.cryptoCounter);
+
+            const usernamePasswordHash = lib.getPasswordHash(passwordDerivedKey, password);
+
+            await appService.createWallet({
+                username,
+                usernamePasswordHash,
+                usernameEncryptedSeed,
+                primaryAddress: ethereumWallet.address,
+                cryptoMetadataJson: JSON.stringify(cryptoMetadata)
+            });
+
+            const newPassword = 'my-password-1234';
+
+            const newPasswordDerivedKey = lib.getPasswordDerivedKey(newPassword, username, cryptoMetadata.iterations, cryptoMetadata.kdf);
+
+            const newUsernameEncryptedSeed = lib.encrypt(newPasswordDerivedKey, seed, cryptoMetadata.cryptoCounter);
+
+            const newUsernamePasswordHash = lib.getPasswordHash(newPasswordDerivedKey, newPassword);
+
+            const updateData = {
+                username,
+                usernamePasswordHash: newUsernamePasswordHash,
+                usernameEncryptedSeed: newUsernameEncryptedSeed
+            };
+
+            const expiredOn = Math.round(new Date().getTime() / 1000) + 60 * 5;
+            const messageParams = [
+                { type: 'string', name: 'project', value: 'GeesomeWallet'},
+                { type: 'string', name: 'action', value: 'updateWallet'},
+                { type: 'string', name: 'walletData', value: JSON.stringify(updateData)},
+                { type: 'string', name: 'expiredOn', value: expiredOn.toString()}
+            ];
+
+            console.log('ethereumWallet.address', ethereumWallet.address);
+            const signature = lib.signMessage(ethereumWallet.privateKey, messageParams);
+
+            const {wallet} = await appService.updateWallet(ethereumWallet.address, signature, updateData, expiredOn);
+
+            const previousEmailWallet = await appService.getWalletByEmailAndPasswordHash(username, usernamePasswordHash);
+            assert.equal(previousEmailWallet, null);
+
+            const gotWallet = await appService.getWalletByUsernameAndPasswordHash(updateData.username, newUsernamePasswordHash);
+            assert.equal(gotWallet.username, updateData.username);
+            assert.equal(gotWallet.usernamePasswordHash, updateData.usernamePasswordHash);
+            assert.equal(gotWallet.usernameEncryptedSeed, updateData.usernameEncryptedSeed);
+
+            done();
+        })()
+    });
+
     it("should deleteWallet correctly", (done) => {
         (async () => {
             let database = await require('../database/sql')(databaseConfig);

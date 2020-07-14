@@ -307,6 +307,8 @@ class IGAppService {
             throw new Error("not_found");
         }
 
+        console.log('wallet.id', wallet.id, 'walletData.username', walletData.username, 'wallet.username', wallet.username);
+
         await pIteration.forEach(['email', 'phone', 'primaryAddress', 'username'], async (field) => {
             if(walletData[field] && walletData[field].toLowerCase() != (wallet[field] || '').toLowerCase()) {
                 if(await this.database.getWalletByField(field, walletData[field].toLowerCase())) {
