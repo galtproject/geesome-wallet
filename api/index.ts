@@ -44,7 +44,9 @@ module.exports = (appService: IGAppService, port) => {
     store.sync();
 
     function setHeaders(req, res) {
-        res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
+        if(req.headers.origin) {
+            res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
+        }
         res.setHeader("Access-Control-Allow-Credentials", "true");
         res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
         res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
