@@ -60,7 +60,12 @@ module.exports = (appService: IGAppService, port) => {
             if(!req.session.secret) {
                 req.session.secret = ethers.Wallet.createRandom().privateKey;
             }
-            req.session.save(async (err) => {resolve()});
+            req.session.save(async (err) => {
+                resolve();
+                if(err) {
+                    console.error('session.save', err);
+                }
+            });
         });
     }
 
