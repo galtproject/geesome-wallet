@@ -62,6 +62,14 @@ module.exports = (appService: IGAppService, port) => {
         });
     }
 
+    /**
+     * @api {post} /v1/register Register wallet
+     * @apiName Register
+     * @apiGroup WalletCreation
+     *
+     * @apiInterface (../database/interface.ts) {IGWallet} apiParam
+     * @apiInterface (./interface.ts) {WalletsResponse} apiSuccess
+     */
     service.post('/v1/register', async (req, res) => {
         setHeaders(req, res);
         //TODO: restrict requests count
@@ -70,6 +78,14 @@ module.exports = (appService: IGAppService, port) => {
         res.send({wallet, pendingWallet});
     });
 
+    /**
+     * @api {post} /v1/confirm-wallet Confirm wallet by phone or email
+     * @apiName ConfirmWallet
+     * @apiGroup WalletCreation
+     *
+     * @apiInterface (./interface.ts) {ConfirmWalletData} apiParam
+     * @apiInterface (./interface.ts) {WalletsResponse} apiSuccess
+     */
     service.post('/v1/confirm-wallet', async (req, res) => {
         setHeaders(req, res);
         const {wallet, pendingWallet} = await appService.confirmPendingWalletByCode(req.session.pendingWalletId, req.body.confirmationMethod, req.body.value, req.body.code);
@@ -77,26 +93,66 @@ module.exports = (appService: IGAppService, port) => {
         res.send({wallet, pendingWallet});
     });
 
+    /**
+     * @api {post} /v1/resend-confirmation Resend wallet confirmation for phone or email
+     * @apiName ResendConfirmation
+     * @apiGroup WalletCreation
+     *
+     * @apiInterface (./interface.ts) {ResendConfirmationData} apiParam
+     * @apiInterface (./interface.ts) {PendingWalletResponse} apiSuccess
+     */
     service.post('/v1/resend-confirmation', async (req, res) => {
         setHeaders(req, res);
         res.send(await appService.resendConfirmationCode(req.body.confirmationMethod, req.session.pendingWalletId));
     });
 
+    /**
+     * @api {post} /v1/get-crypto-metadata-by-email Get crypto metadata of wallet by email
+     * @apiName GetCryptoMetadataByEmail
+     * @apiGroup WalletLogin
+     *
+     * @apiInterface (./interface.ts) {EmailData} apiParam
+     * @apiInterface (./interface.ts) {CryptoMetadata} apiSuccess
+     */
     service.post('/v1/get-crypto-metadata-by-email', async (req, res) => {
         setHeaders(req, res);
         res.send(await appService.getCryptoMetadataByEmail(req.body.email));
     });
 
+    /**
+     * @api {post} /v1/get-crypto-metadata-by-email Get crypto metadata of wallet by phone
+     * @apiName GetCryptoMetadataByPhone
+     * @apiGroup WalletLogin
+     *
+     * @apiInterface (./interface.ts) {PhoneData} apiParam
+     * @apiInterface (./interface.ts) {CryptoMetadata} apiSuccess
+     */
     service.post('/v1/get-crypto-metadata-by-phone', async (req, res) => {
         setHeaders(req, res);
         res.send(await appService.getCryptoMetadataByPhone(req.body.phone));
     });
 
+    /**
+     * @api {post} /v1/get-crypto-metadata-by-username Get crypto metadata of wallet by username
+     * @apiName GetCryptoMetadataByUsername
+     * @apiGroup WalletLogin
+     *
+     * @apiInterface (./interface.ts) {UsernameData} apiParam
+     * @apiInterface (./interface.ts) {CryptoMetadata} apiSuccess
+     */
     service.post('/v1/get-crypto-metadata-by-username', async (req, res) => {
         setHeaders(req, res);
         res.send(await appService.getCryptoMetadataByUsername(req.body.username));
     });
 
+    /**
+     * @api {post} /v1/get-wallet-by-email-and-password-hash Get wallet by email and password hash
+     * @apiName GetWalletByEmailAndPasswordHash
+     * @apiGroup WalletLogin
+     *
+     * @apiInterface (./interface.ts) {EmailLoginData} apiParam
+     * @apiInterface (../database/interface.ts) {IGWallet} apiSuccess
+     */
     service.post('/v1/get-wallet-by-email-and-password-hash', async (req, res) => {
         setHeaders(req, res);
         const wallet = await appService.getWalletByEmailAndPasswordHash(req.body.email, req.body.emailPasswordHash);
@@ -104,6 +160,14 @@ module.exports = (appService: IGAppService, port) => {
         res.send(wallet);
     });
 
+    /**
+     * @api {post} /v1/get-wallet-by-phone-and-password-hash Get wallet by phone and password hash
+     * @apiName GetWalletByPhoneAndPasswordHash
+     * @apiGroup WalletLogin
+     *
+     * @apiInterface (./interface.ts) {PhoneLoginData} apiParam
+     * @apiInterface (../database/interface.ts) {IGWallet} apiSuccess
+     */
     service.post('/v1/get-wallet-by-phone-and-password-hash', async (req, res) => {
         setHeaders(req, res);
         const wallet = await appService.getWalletByPhoneAndPasswordHash(req.body.phone, req.body.phonePasswordHash);
@@ -111,6 +175,14 @@ module.exports = (appService: IGAppService, port) => {
         res.send(wallet);
     });
 
+    /**
+     * @api {post} /v1/get-wallet-by-username-and-password-hash Get wallet by username and password hash
+     * @apiName GetWalletByUsernameAndPasswordHash
+     * @apiGroup WalletLogin
+     *
+     * @apiInterface (./interface.ts) {PhoneLoginData} apiParam
+     * @apiInterface (../database/interface.ts) {IGWallet} apiSuccess
+     */
     service.post('/v1/get-wallet-by-username-and-password-hash', async (req, res) => {
         setHeaders(req, res);
         const wallet = await appService.getWalletByUsernameAndPasswordHash(req.body.username, req.body.usernamePasswordHash);
@@ -118,11 +190,27 @@ module.exports = (appService: IGAppService, port) => {
         res.send(wallet);
     });
 
+    /**
+     * @api {post} /v1/get-auth-message Get auth message to make signature for getting wallet
+     * @apiName GetAuthMessage
+     * @apiGroup WalletLogin
+     *
+     * @apiInterface (./interface.ts) {PrimaryAddressData} apiParam
+     * @apiInterface (../database/interface.ts) {IGAuthMessage} apiSuccess
+     */
     service.post('/v1/get-auth-message', async (req, res) => {
         setHeaders(req, res);
         res.send(await appService.getAuthMessage(req.body.primaryAddress));
     });
 
+    /**
+     * @api {post} /v1/get-wallet-by-signature Get wallet by signature of auth message
+     * @apiName GetWalletBySignature
+     * @apiGroup WalletLogin
+     *
+     * @apiInterface (./interface.ts) {SignatureData} apiParam
+     * @apiInterface (../database/interface.ts) {IGWallet} apiSuccess
+     */
     service.post('/v1/get-wallet-by-signature', async (req, res) => {
         setHeaders(req, res);
         const wallet = await appService.getWalletBySignature(req.body.primaryAddress, req.body.signature);
@@ -130,6 +218,26 @@ module.exports = (appService: IGAppService, port) => {
         res.send(wallet);
     });
 
+    /**
+     * @api {post} /v1/get-session Get session
+     * @apiName GetSession
+     * @apiGroup WalletLogin
+     *
+     * @apiInterface (./interface.ts) {SessionData} apiSuccess
+     */
+    service.post('/v1/get-session', async (req, res) => {
+        setHeaders(req, res);
+        res.send({secret: req.session.secret, wallet: req.session.walletId ? await appService.database.getWallet(req.session.walletId) : null});
+    });
+
+    /**
+     * @api {post} /v1/update-wallet Update wallet
+     * @apiName UpdateWallet
+     * @apiGroup WalletUpdate
+     *
+     * @apiInterface (./interface.ts) {UpdateWalletData} apiParam
+     * @apiInterface (./interface.ts) {WalletsResponse} apiSuccess
+     */
     service.post('/v1/update-wallet', async (req, res) => {
         setHeaders(req, res);
         const {wallet, pendingWallet} = await appService.updateWallet(req.body.primaryAddress, req.body.signature, req.body.walletData, req.body.expiredOn);
@@ -137,15 +245,20 @@ module.exports = (appService: IGAppService, port) => {
         res.send({wallet, pendingWallet});
     });
 
-    service.post('/v1/get-session', async (req, res) => {
-        setHeaders(req, res);
-        res.send({secret: req.session.secret, wallet: req.session.walletId ? await appService.database.getWallet(req.session.walletId) : null});
-    });
-
+    /**
+     * @api {post} /v1/admin/confirm-wallet Confirm wallet by admin
+     * @apiName AdminConfirmWallet
+     * @apiGroup Admin
+     *
+     * @apiInterface (./interface.ts) {ConfirmWalletAdminData} apiParam
+     * @apiInterface (./interface.ts) {SuccessData} apiSuccess
+     */
     service.post('/v1/admin/confirm-wallet', async (req, res) => {
         setHeaders(req, res);
-        const wallet = await appService.confirmPendingWalletByAdmin(req.body.signature, req.body.pendingWalletId, req.body.confirmMethods);
-        res.send(wallet);
+        await appService.confirmPendingWalletByAdmin(req.body.signature, req.body.pendingWalletId, req.body.confirmMethods);
+        res.send({
+            success: true
+        });
     });
 
     service.options("/*", function (req, res, next) {

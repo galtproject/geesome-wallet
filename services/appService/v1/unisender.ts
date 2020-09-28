@@ -31,6 +31,9 @@ const unisender = {
   },
 
   sendEmail(emailTo, subject, htmlBody, listId = 2) {
+    if(!api_key) {
+      return console.warn('SendEmail disabled due to api_key undefined');
+    }
     return http.post('sendEmail', formData({
       format: 'json',
       sender_name: 'GaltProject',

@@ -16,6 +16,9 @@ const psw = process.env.SMSC_PASSWORD;
 
 const smsc = {
   send(phones, mes) {
+    if(!login) {
+      return console.warn('smsc send disabled due to login undefined');
+    }
     return http.post('send.php', formData({
       login,
       psw,
