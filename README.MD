@@ -4,7 +4,7 @@ GeeSome Wallet
 
 ## API
 
-[API Documentation](./docs)
+[API Documentation](https://galtproject.github.io/geesome-wallet/)
 
 ##  Tests
 ```
