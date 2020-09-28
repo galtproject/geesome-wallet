@@ -7,7 +7,7 @@
     "start": "./node_modules/.bin/ts-node ./index.ts",
     "test": "npm run recreate-test-database; ./node_modules/.bin/mocha -r ts-node/register 'test/**/*.test.ts'",
     "testCoverage": "./node_modules/.bin/nyc -r lcov -e .ts -x \"*.test.ts\" ./node_modules/.bin/mocha -r ts-node/register test/**/*.test.ts && nyc report",
-    "recreate-test-database": "dropdb geesome_wallet_test && createdb geesome_wallet_test",
+    "recreate-test-database": "sudo -u postgres dropdb geesome_wallet_test && sudo -u postgres createdb geesome_wallet_test",
     "migrate-database": "NODE_ENV=production ./node_modules/.bin/sequelize db:migrate",
     "create-migration": "./node_modules/.bin/sequelize migration:generate --migrations-path migrations --name",
     "generate-docs": "node_modules/.bin/apidoc -i api -o docs/ -t node_modules/apidoc-template/template"

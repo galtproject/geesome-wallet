@@ -54,7 +54,6 @@ describe("databaseValues", function () {
                 { type: 'string', name: 'pendingWalletId', value: pendingWallet.id.toString()},
                 { type: 'string', name: 'confirmMethods', value: ['email']}
             ];
-            console.log('confirmPendingWalletMessage', confirmPendingWalletMessage);
 
             const incorrectSignature = lib.signMessage(ethereumWallet.privateKey, confirmPendingWalletMessage);
             try {
@@ -293,7 +292,6 @@ describe("databaseValues", function () {
                 { type: 'string', name: 'expiredOn', value: expiredOn.toString()}
             ];
 
-            console.log('ethereumWallet.address', ethereumWallet.address);
             const signature = lib.signMessage(ethereumWallet.privateKey, messageParams);
 
             const {pendingWallet} = await appService.updateWallet(ethereumWallet.address, signature, updateData, expiredOn);

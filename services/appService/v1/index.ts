@@ -33,7 +33,6 @@ class IGAppService {
     }
 
     setAdminsAddresses(adminsAddresses) {
-        console.log('setAdminsAddresses', adminsAddresses);
         this.adminsAddresses = adminsAddresses;
     }
 
@@ -62,7 +61,6 @@ class IGAppService {
             walletData.phoneConfirmationSentCount = 1;
             smsc.send([walletData.phone], walletData.phoneConfirmationCode.toString());
         }
-        console.log('walletData', walletData);
         const pendingWalletResult = (await this.database.addPendingWallet(walletData)).toJSON();
         delete pendingWalletResult.emailConfirmationCode;
         delete pendingWalletResult.phoneConfirmationCode;
@@ -125,7 +123,6 @@ class IGAppService {
             { type: 'string', name: 'pendingWalletId', value: pendingWalletId.toString(10)},
             { type: 'string', name: 'confirmMethods', value: confirmMethods}
         ];
-        console.log('messageParams', messageParams);
         const isValid = ethereumAuthorization.isSignatureValidByAddressesList(this.adminsAddresses, signature, messageParams);
         if (!isValid) {
             throw new Error("not_valid");
@@ -143,8 +140,6 @@ class IGAppService {
         } else {
             throw new Error("unknown_method");
         }
-        console.log('pendingWalletId', pendingWalletId);
-        console.log('pendingWallet.id', pendingWallet.id);
         if(pendingWallet.id !== pendingWalletId) {
             throw new Error("failed");
         }
@@ -217,7 +212,6 @@ class IGAppService {
     }
 
     async getCryptoMetadataByUsername(username) {
-        console.log('getCryptoMetadataByUsername', username);
         if(!username) {
             return null;
         }
@@ -296,9 +290,6 @@ class IGAppService {
         if(!wallet) {
             throw new Error("not_found");
         }
-
-        console.log('wallet', wallet);
-        console.log('walletData', walletData);
 
         await pIteration.forEach(['email', 'phone', 'primaryAddress', 'username'], async (field) => {
             if(walletData[field] && walletData[field].toLowerCase() != (wallet[field] || '').toLowerCase()) {

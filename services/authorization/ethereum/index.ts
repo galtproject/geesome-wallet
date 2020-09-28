@@ -16,12 +16,10 @@ module.exports = {
   },
   isSignatureValid(address, signature, messageParams) {
     const signedByAddress = this.getAccountAddressBySignature(signature, messageParams);
-    console.log('signedByAddress', signedByAddress);
     return signedByAddress.toLowerCase() === address.toLowerCase();
   },
   isSignatureValidByAddressesList(addressList, signature, messageParams) {
     const signedByAddress = this.getAccountAddressBySignature(signature, messageParams);
-    console.log('signedByAddress', signedByAddress);
     return _.includes(addressList.map(a => a.toLowerCase()), signedByAddress.toLowerCase());
   }
 };
