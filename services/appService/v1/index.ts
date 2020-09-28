@@ -222,11 +222,9 @@ class IGAppService {
             return null;
         }
         const wallet = await this.database.getWalletByField('username', username);
-        console.log('wallet', wallet);
         if(!wallet) {
             return null;
         }
-        console.log('wallet.cryptoMetadataJson', wallet.cryptoMetadataJson);
         return JSON.parse(wallet.cryptoMetadataJson);
     }
 

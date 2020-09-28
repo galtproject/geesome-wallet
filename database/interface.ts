@@ -37,36 +37,36 @@ export interface IGDatabase {
 }
 
 export interface IGPendingWallet {
-    id;
-    email;
-    emailConfirmationCode;
-    username;
-    phone;
-    phoneConfirmationCode;
+    id?;
+    email?;
+    emailConfirmationCode?;
+    username?;
+    phone?;
+    phoneConfirmationCode?;
     primaryAddress;
-    emailPasswordHash;
-    phonePasswordHash;
-    usernamePasswordHash;
-    emailEncryptedSeed;
-    phoneEncryptedSeed;
-    usernameEncryptedSeed;
+    emailPasswordHash?;
+    phonePasswordHash?;
+    usernamePasswordHash?;
+    emailEncryptedSeed?;
+    phoneEncryptedSeed?;
+    usernameEncryptedSeed?;
     cryptoMetadataJson;
 
-    toJSON();
+    toJSON?();
 }
 
 export interface IGWallet {
-    id;
-    email;
-    username;
-    phone;
+    id?;
+    email?;
+    username?;
+    phone?;
     primaryAddress;
-    emailPasswordHash;
-    phonePasswordHash;
-    usernamePasswordHash;
-    emailEncryptedSeed;
-    phoneEncryptedSeed;
-    usernameEncryptedSeed;
+    emailPasswordHash?;
+    phonePasswordHash?;
+    usernamePasswordHash?;
+    emailEncryptedSeed?;
+    phoneEncryptedSeed?;
+    usernameEncryptedSeed?;
     cryptoMetadataJson;
 }
 
